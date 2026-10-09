@@ -19,6 +19,7 @@ input:focus,select:focus,button:focus-visible{outline:2px solid #1F2F6B;outline-
 <div style="min-height: 1040px; font-family: 'IBM Plex Sans KR', sans-serif; color: #1F2430; background: #F3F4F6; display: flex; flex-direction: column">
   <header style="background: #1F2F6B; color: #FFFFFF; padding: 0 28px; height: 56px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px">
     <div style="display: flex; align-items: center; gap: 14px">
+      <span style="width: 44px; height: 40px; background: #FFFFFF; border-radius: 3px; display: flex; align-items: center; justify-content: center"><img src="../assets/khu_emblem.png" alt="경희대학교 휘장" style="width: 40px; height: auto"></span>
       <span style="font-weight: 700; font-size: 17px">경희대 키우기 민원관리</span>
       <span style="font-size: 12px; padding: 2px 8px; border: 1px solid #8C97C2; color: #DDE2F2">담당자 시스템</span>
     </div>
@@ -88,7 +89,7 @@ input:focus,select:focus,button:focus-visible{outline:2px solid #1F2F6B;outline-
                   <td style="padding: 10px 16px; border-bottom: 1px solid #ECEEF2; white-space: nowrap"><a href="AdminDetail.dc.html" style="font-family: 'IBM Plex Mono', monospace">{{r.no}}</a></td>
                   <td style="padding: 10px 12px; border-bottom: 1px solid #ECEEF2; white-space: nowrap; font-family: 'IBM Plex Mono', monospace; color: #3A4150">{{r.date}}</td>
                   <td style="padding: 10px 12px; border-bottom: 1px solid #ECEEF2; white-space: nowrap">{{r.where}}</td>
-                  <td style="padding: 10px 12px; border-bottom: 1px solid #ECEEF2">{{r.title}}<sc-if value="{{r.late}}" hint-placeholder-val="{{ false }}"><span style="margin-left: 8px; font-size: 12px; color: #9E1B24; font-weight: 600">[지연]</span></sc-if></td>
+                  <td style="padding: 10px 12px; border-bottom: 1px solid #ECEEF2">{{r.title}}<sc-if value="{{r.late}}" hint-placeholder-val="{{ false }}"><span style="margin-left: 8px; font-size: 12px; color: #9E1B24; font-weight: 600">[지연]</span></sc-if><sc-if value="{{r.reopen}}" hint-placeholder-val="{{ false }}"><span style="margin-left: 8px; font-size: 12px; color: #9E1B24; font-weight: 600">[재문의]</span></sc-if></td>
                   <td style="padding: 10px 12px; border-bottom: 1px solid #ECEEF2; white-space: nowrap">{{r.dept}} <span style="color: #6A7180">({{r.conf}})</span></td>
                   <td style="padding: 10px 12px; border-bottom: 1px solid #ECEEF2; white-space: nowrap"><span style="display: inline-block; font-size: 12px; padding: 1px 8px; border: 1px solid {{r.color}}; color: {{r.color}}; border-radius: 3px">{{r.status}}</span></td>
                   <td style="padding: 10px 12px; border-bottom: 1px solid #ECEEF2; white-space: nowrap">{{r.owner}}</td>
@@ -127,6 +128,10 @@ input:focus,select:focus,button:focus-visible{outline:2px solid #1F2F6B;outline-
       </div>
     </main>
   </div>
+  <footer style="display: flex; justify-content: flex-end; align-items: center; gap: 12px; padding: 12px 28px; border-top: 1px solid #D5D9E0; background: #FFFFFF">
+    <span style="font-size: 12px; color: #6A7180">2026 KHU AI Challenge 출품 시제품</span>
+    <img src="../assets/khu_wordmark.png" alt="KHU" style="height: 28px; width: auto">
+  </footer>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1040}}'>
@@ -138,10 +143,12 @@ class Component extends DCLogic {
       { no: '2026-1009-004', date: '10.09 09:12', where: '25번 건물 앞 광장', title: '가로등 2개가 꺼져 있음', dept: '시설팀', conf: '88%', status: '접수 완료', owner: '미배정' },
       { no: '2026-1008-017', date: '10.08 18:40', where: '12번 건물 3층', title: '강의실 프로젝터 전원 불량', dept: '정보통신 담당', conf: '81%', status: '접수 완료', owner: '미배정' },
       { no: '2026-1001-023', date: '10.01 23:06', where: '중앙도서관 정문', title: '정문 오른쪽 두 번째 벤치 파손', dept: '시설팀', conf: '92%', status: '해결 중', owner: '본인' },
+      { no: '2026-1002-011', date: '10.02 15:40', where: '광장 분수대 주변 (꾸미기)', title: '분수대 주변 벤치 설치 요청', dept: '시설팀', conf: '90%', status: '접수 완료', owner: '미배정' },
       { no: '2026-0930-008', date: '09.30 10:33', where: '채팅 문의 (챗봇 이관)', title: '성적장학금 규정 문의', dept: '장학 담당', conf: '77%', status: '접수 완료', owner: '미배정', late: true },
       { no: '2026-0927-012', date: '09.27 16:05', where: '14번 종합운동장', title: '트랙 바깥쪽 배수 불량', dept: '시설팀', conf: '84%', status: '해결 중', owner: '본인' },
-      { no: '2026-0924-031', date: '09.24 14:12', where: '31번 건물 2층', title: '화장실 핸드드라이어 고장', dept: '시설팀', conf: '95%', status: '해결 완료', owner: '본인' }
-    ].map((r) => ({ ...r, color: C[r.status], late: !!r.late }));
+      { no: '2026-0924-031', date: '09.24 14:12', where: '체육관 2층', title: '화장실 핸드드라이어 고장', dept: '시설팀', conf: '95%', status: '해결 중', owner: '본인', reopen: true },
+      { no: '2026-0912-006', date: '09.12 19:40', where: '학생회관', title: '계단 조명 깜빡임', dept: '시설팀', conf: '93%', status: '해결 완료', owner: '본인' }
+    ].map((r) => ({ ...r, color: C[r.status], late: !!r.late, reopen: !!r.reopen }));
     const cnt = (s) => all.filter((r) => r.status === s).length;
     const q = this.state.q.trim();
     const rows = all.filter((r) => (this.state.filter === 'all' || r.status === this.state.filter) && (!q || (r.title + r.where).includes(q)));
@@ -149,7 +156,7 @@ class Component extends DCLogic {
       const on = this.state.filter === k;
       return { label: l + ' ' + (k === 'all' ? all.length : cnt(k)), on, bg: on ? '#1F2F6B' : '#FFFFFF', fg: on ? '#FFFFFF' : '#1F2430', border: on ? '#1F2F6B' : '#B8BEC9', pick: () => this.setState({ filter: k }) };
     });
-    const nav = [['민원 현황', 'AdminDashboard.dc.html', 0, true], ['민원함', 'AdminDashboard.dc.html', cnt('접수 완료')], ['민원인 채팅', 'AdminDetail.dc.html', 1], ['챗봇 이관함', 'AdminDashboard.dc.html', 1], ['꾸미기(건의) 현황', 'AdminDashboard.dc.html', 0]].map(([label, href, count, on]) => ({
+    const nav = [['민원 현황', 'AdminDashboard.dc.html', 0, true], ['민원함', 'AdminDashboard.dc.html', cnt('접수 완료')], ['민원인 채팅', 'AdminDetail.dc.html', 1], ['챗봇 이관함', 'AdminDashboard.dc.html', 1], ['재문의', 'AdminDetail.dc.html', all.filter((r) => r.reopen).length]].map(([label, href, count, on]) => ({
       label, href, count, hasCount: count > 0, bg: on ? '#EEF1F8' : '#FFFFFF', fg: on ? '#1F2F6B' : '#1F2430', bar: on ? '#1F2F6B' : 'transparent', weight: on ? 700 : 400
     }));
     return {
@@ -161,8 +168,8 @@ class Component extends DCLogic {
         { label: '지연 (3일 이상)', value: all.filter((r) => r.late).length, sub: '우선 처리 대상', color: '#9E1B24' },
         { label: '처리 완료', value: cnt('해결 완료'), sub: '이번 주', color: '#2F6B3A' }
       ],
-      depts: [['시설팀', 4], ['정보통신 담당', 1], ['장학 담당', 1], ['학사 담당', 0]].map(([name, n]) => ({ name, n })),
-      urgent: [{ title: '성적장학금 규정 문의', why: '접수 후 9일 경과' }, { title: '가로등 2개가 꺼져 있음', why: '야간 안전 관련' }]
+      depts: [['시설팀', 5], ['정보통신 담당', 1], ['장학 담당', 1], ['학사 담당', 0]].map(([name, n]) => ({ name, n })),
+      urgent: [{ title: '화장실 핸드드라이어 고장', why: '재문의 접수' }, { title: '성적장학금 규정 문의', why: '접수 후 9일 경과' }, { title: '가로등 2개가 꺼져 있음', why: '야간 안전 관련' }]
     };
   }
 }

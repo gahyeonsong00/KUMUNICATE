@@ -13,11 +13,14 @@
 body{margin:0}
 a{color:#1F2F6B}a:hover{color:#14204D}
 input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid #1F2F6B;outline-offset:1px}
+.split{cursor:col-resize;touch-action:none}
+.split:hover,.split:focus-visible{background:#C9D0E0}
 </style>
 </helmet>
 <div style="min-height: 1040px; font-family: 'IBM Plex Sans KR', sans-serif; color: #1F2430; background: #F3F4F6; display: flex; flex-direction: column">
   <header style="background: #1F2F6B; color: #FFFFFF; padding: 0 28px; height: 56px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px">
     <div style="display: flex; align-items: center; gap: 14px">
+      <span style="width: 44px; height: 40px; background: #FFFFFF; border-radius: 3px; display: flex; align-items: center; justify-content: center"><img src="../assets/khu_emblem.png" alt="경희대학교 휘장" style="width: 40px; height: auto"></span>
       <span style="font-weight: 700; font-size: 17px">경희대 키우기 민원관리</span>
       <span style="font-size: 12px; padding: 2px 8px; border: 1px solid #8C97C2; color: #DDE2F2">담당자 시스템</span>
     </div>
@@ -27,51 +30,86 @@ input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid #
     </div>
   </header>
 
-  <div style="padding: 20px 28px 8px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px; border-bottom: 1px solid #D5D9E0; margin: 0 28px; padding-left: 0; padding-right: 0">
-    <h1 style="margin: 0; font-size: 22px; font-weight: 700">정문 오른쪽 두 번째 벤치 파손</h1>
-    <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #4A5160">2026-1001-023</span>
-    <span style="font-size: 12px; padding: 1px 8px; border: 1px solid {{statusColor}}; color: {{statusColor}}; border-radius: 3px">{{status}}</span>
+  <div style="margin: 14px 28px 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 12px; color: #4A5160">
+    <span>시연용 사례:</span>
+    <sc-for list="{{cases}}" as="c" hint-placeholder-count="3">
+      <button onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="height: 28px; padding: 0 10px; border: 1px solid {{c.border}}; border-radius: 3px; background: {{c.bg}}; color: {{c.fg}}; font-family: inherit; font-size: 12px; cursor: pointer">{{c.label}}</button>
+    </sc-for>
   </div>
 
-  <div style="padding: 18px 28px 40px; display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start">
+  <div style="margin: 12px 28px 0; padding-bottom: 10px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px; border-bottom: 1px solid #D5D9E0">
+    <h1 style="margin: 0; font-size: 22px; font-weight: 700">{{cur.title}}</h1>
+    <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #4A5160">{{cur.no}}</span>
+    <span style="font-size: 12px; padding: 1px 8px; border: 1px solid {{statusColor}}; color: {{statusColor}}; border-radius: 3px">{{status}}</span>
+    <span style="font-size: 12px; padding: 1px 8px; background: #EEF1F8; color: #1F2F6B; border-radius: 3px">{{cur.routeLabel}}</span>
+    <sc-if value="{{cur.isReopen}}" hint-placeholder-val="{{ false }}">
+      <span style="font-size: 12px; padding: 1px 8px; border: 1px solid #9E1B24; color: #9E1B24; border-radius: 3px; font-weight: 600">재문의 ({{cur.reopenAt}})</span>
+    </sc-if>
+  </div>
+
+  <div style="padding: 16px 28px 0; display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start">
     <div style="flex: 3 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 18px">
       <section style="background: #FFFFFF; border: 1px solid #D5D9E0">
-        <h2 style="margin: 0; padding: 12px 16px; font-size: 15px; font-weight: 700; border-bottom: 1px solid #D5D9E0">접수 내용</h2>
+        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 16px; border-bottom: 1px solid #D5D9E0">
+          <h2 style="margin: 0; font-size: 15px; font-weight: 700">민원 내용</h2>
+          <div style="display: flex; gap: 6px">
+            <button onClick="{{toggleBody}}" aria-expanded="{{showBody}}" style="height: 30px; padding: 0 12px; border: 1px solid {{bodyBtn.border}}; border-radius: 3px; background: {{bodyBtn.bg}}; color: {{bodyBtn.fg}}; font-family: inherit; font-size: 13px; cursor: pointer">접수 내용 {{bodyBtn.mark}}</button>
+            <button onClick="{{toggleBot}}" aria-expanded="{{showBot}}" style="height: 30px; padding: 0 12px; border: 1px solid {{botBtn.border}}; border-radius: 3px; background: {{botBtn.bg}}; color: {{botBtn.fg}}; font-family: inherit; font-size: 13px; cursor: pointer">챗봇 접수 기록 {{botBtn.mark}}</button>
+          </div>
+        </div>
+        <sc-if value="{{infoNone}}" hint-placeholder-val="{{ false }}">
+          <p style="margin: 0; padding: 16px; font-size: 13px; color: #4A5160">두 구획이 모두 접혀 있습니다. 위의 접수 내용 또는 챗봇 접수 기록을 눌러 펼치세요.</p>
+        </sc-if>
+        <div ref="{{setWrap2}}" style="display: flex">
+          <sc-if value="{{showBody}}" hint-placeholder-val="{{ true }}">
+            <div style="flex: 0 0 {{bodyW}}; min-width: 0">
+              <h3 style="margin: 0; padding: 10px 16px; font-size: 13px; font-weight: 700; color: #4A5160; background: #F7F8FA; border-bottom: 1px solid #ECEEF2">접수 내용</h3>
         <table style="width: 100%; border-collapse: collapse; font-size: 13px">
-          <tr><th style="width: 120px; text-align: left; padding: 9px 16px; background: #F4F6FA; font-weight: 600; border-bottom: 1px solid #ECEEF2">접수일시</th><td style="padding: 9px 16px; border-bottom: 1px solid #ECEEF2; font-family: 'IBM Plex Mono', monospace">2026.10.01 23:06</td></tr>
-          <tr><th style="text-align: left; padding: 9px 16px; background: #F4F6FA; font-weight: 600; border-bottom: 1px solid #ECEEF2">위치</th><td style="padding: 9px 16px; border-bottom: 1px solid #ECEEF2">중앙도서관 정문 (민원인이 지도에서 선택)</td></tr>
-          <tr><th style="text-align: left; padding: 9px 16px; background: #F4F6FA; font-weight: 600; border-bottom: 1px solid #ECEEF2">접수 경로</th><td style="padding: 9px 16px; border-bottom: 1px solid #ECEEF2">지도 위치 선택 후 챗봇 접수</td></tr>
-          <tr><th style="text-align: left; padding: 9px 16px; background: #F4F6FA; font-weight: 600; vertical-align: top">원문</th><td style="padding: 9px 16px; line-height: 1.7">도서관 정문에서 나와 오른쪽 두 번째 벤치가 부서져 있어요. 앉으면 위험해 보입니다.</td></tr>
+          <tr><th style="width: 84px; text-align: left; padding: 9px 16px; background: #F4F6FA; font-weight: 600; border-bottom: 1px solid #ECEEF2">접수일시</th><td style="padding: 9px 16px; border-bottom: 1px solid #ECEEF2; font-family: 'IBM Plex Mono', monospace">{{cur.date}}</td></tr>
+          <tr><th style="text-align: left; padding: 9px 16px; background: #F4F6FA; font-weight: 600; border-bottom: 1px solid #ECEEF2">위치</th><td style="padding: 9px 16px; border-bottom: 1px solid #ECEEF2">{{cur.where}}</td></tr>
+          <tr><th style="text-align: left; padding: 9px 16px; background: #F4F6FA; font-weight: 600; border-bottom: 1px solid #ECEEF2">접수 경로</th><td style="padding: 9px 16px; border-bottom: 1px solid #ECEEF2">{{cur.routeLabel}}</td></tr>
+          <tr><th style="text-align: left; padding: 9px 16px; background: #F4F6FA; font-weight: 600; border-bottom: 1px solid #ECEEF2">민원인</th><td style="padding: 9px 16px; border-bottom: 1px solid #ECEEF2">{{cur.who}} <span style="color: #6A7180">({{cur.whoWhy}})</span></td></tr>
+          <tr><th style="text-align: left; padding: 9px 16px; background: #F4F6FA; font-weight: 600; vertical-align: top">원문</th><td style="padding: 9px 16px; line-height: 1.7">{{cur.body}}</td></tr>
         </table>
-        <div style="padding: 0 16px 16px">
-          <div style="height: 150px; border: 1px dashed #B8BEC9; background: #F7F8FA; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #4A5160">[민원인 첨부 사진]</div>
-        </div>
-      </section>
-
-      <section style="background: #FFFFFF; border: 1px solid #D5D9E0">
-        <h2 style="margin: 0; padding: 12px 16px; font-size: 15px; font-weight: 700; border-bottom: 1px solid #D5D9E0">민원인과 채팅</h2>
-        <div style="display: flex; flex-direction: column; gap: 10px; max-height: 280px; overflow-y: auto; padding: 14px 16px">
-          <sc-for list="{{talk}}" as="m" hint-placeholder-count="3">
-            <div style="display: flex; flex-direction: column; align-items: {{m.align}}; gap: 2px">
-              <span style="font-size: 12px; color: #4A5160">{{m.who}}</span>
-              <div style="max-width: 70%; background: {{m.bg}}; color: {{m.fg}}; border: 1px solid #D5D9E0; border-radius: 3px; padding: 8px 11px; font-size: 14px; line-height: 1.5">{{m.text}}</div>
+        <sc-if value="{{cur.isReopen}}" hint-placeholder-val="{{ false }}">
+          <div style="margin: 0 16px 16px; border: 1px solid #E3C9CB; background: #FBF5F5; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; line-height: 1.6">
+            <span style="font-weight: 600; color: #9E1B24">이전 처리 이력</span>
+            <span>{{cur.prevDone}} 답변서로 해결 완료 처리</span>
+            <span style="color: #3A4150">보낸 답변: {{cur.prevAnswer}}</span>
+            <span style="color: #4A5160">해결 완료 후 7일 안에 민원인이 채팅으로 재문의해 같은 민원이 다시 열렸습니다.</span>
+          </div>
+        </sc-if>
+        <sc-if value="{{cur.hasDeco}}" hint-placeholder-val="{{ false }}">
+          <div style="padding: 0 16px 16px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+            <figure style="margin: 0; display: flex; flex-direction: column; gap: 4px"><img src="../assets/deco_before.png" alt="꾸미기 전 광장" style="width: 100%; height: 150px; object-fit: cover; border: 1px solid #D5D9E0; image-rendering: pixelated"><figcaption style="font-size: 12px; color: #4A5160">현재 모습</figcaption></figure>
+            <figure style="margin: 0; display: flex; flex-direction: column; gap: 4px"><img src="../assets/deco_after.png" alt="민원인이 AI로 만든 개선 모습: 벤치와 화단 추가" style="width: 100%; height: 150px; object-fit: cover; border: 1px solid #D5D9E0; image-rendering: pixelated"><figcaption style="font-size: 12px; color: #4A5160">민원인이 꾸미기로 만든 개선안 (AI 생성)</figcaption></figure>
+          </div>
+        </sc-if>
+        <sc-if value="{{cur.hasPhoto}}" hint-placeholder-val="{{ true }}">
+          <div style="padding: 0 16px 16px">
+            <div style="height: 130px; border: 1px dashed #B8BEC9; background: #F7F8FA; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #4A5160">[민원인 첨부 사진]</div>
+          </div>
+        </sc-if>
             </div>
-          </sc-for>
-        </div>
-        <div style="display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid #ECEEF2">
-          <label style="flex: 1; display: flex"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden">답장</span>
-            <input type="text" value="{{draft}}" onChange="{{onDraft}}" placeholder="민원인에게 보낼 메시지" style="flex: 1; height: 36px; border: 1px solid #B8BEC9; border-radius: 3px; padding: 0 10px; font-family: inherit; font-size: 13px">
-          </label>
-          <button onClick="{{send}}" style="height: 36px; padding: 0 16px; border: 1px solid #1F2F6B; border-radius: 3px; background: #1F2F6B; color: #FFFFFF; font-family: inherit; font-size: 13px">전송</button>
-        </div>
-      </section>
-
-      <section style="background: #FFFFFF; border: 1px solid #D5D9E0">
-        <h2 style="margin: 0; padding: 12px 16px; font-size: 15px; font-weight: 700; border-bottom: 1px solid #D5D9E0">챗봇 접수 기록</h2>
-        <div style="padding: 12px 16px; font-size: 13px; line-height: 1.7; display: flex; flex-direction: column; gap: 4px; color: #3A4150">
-          <span><b>AI챗봇</b> 안녕하세요. 어떤 점이 불편하신가요?</span>
-          <span><b>민원인</b> 도서관 정문에서 나와 오른쪽 두 번째 벤치가 부서져 있어요.</span>
-          <span><b>AI챗봇</b> 확인했습니다. 시설 관련 민원으로 분류했어요.</span>
+          </sc-if>
+          <sc-if value="{{infoBoth}}" hint-placeholder-val="{{ true }}">
+            <button class="split" role="separator" aria-orientation="vertical" aria-label="접수 내용과 챗봇 접수 기록 너비 조절" aria-valuenow="{{ratio2}}" aria-valuemin="30" aria-valuemax="75" onPointerDown="{{drag2Start}}" onPointerMove="{{drag2Move}}" onPointerUp="{{dragEnd}}" onKeyDown="{{drag2Key}}" style="flex: 0 0 10px; border: none; border-left: 1px solid #D5D9E0; border-right: 1px solid #D5D9E0; background: #EEF0F4; padding: 0; display: flex; align-items: center; justify-content: center">
+              <span style="width: 2px; height: 28px; background: #8C94A3"></span>
+            </button>
+          </sc-if>
+          <sc-if value="{{showBot}}" hint-placeholder-val="{{ true }}">
+            <div style="flex: 1 1 0; min-width: 0">
+              <h3 style="margin: 0; padding: 10px 16px; font-size: 13px; font-weight: 700; color: #4A5160; background: #F7F8FA; border-bottom: 1px solid #ECEEF2">챗봇 접수 기록</h3>
+        <sc-if value="{{cur.hasBot}}" hint-placeholder-val="{{ true }}">
+          <div style="padding: 12px 16px; font-size: 13px; line-height: 1.7; display: flex; flex-direction: column; gap: 4px; color: #3A4150">
+            <sc-for list="{{cur.bot}}" as="b" hint-placeholder-count="3"><span><b>{{b.who}}</b> {{b.text}}</span></sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{cur.noBot}}" hint-placeholder-val="{{ false }}">
+          <p style="margin: 0; padding: 12px 16px; font-size: 13px; color: #4A5160">챗봇 대화 없이 접수된 민원입니다.</p>
+        </sc-if>
+            </div>
+          </sc-if>
         </div>
       </section>
     </div>
@@ -79,65 +117,186 @@ input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid #
     <aside style="flex: 2 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 18px">
       <section style="background: #FFFFFF; border: 1px solid #D5D9E0">
         <h2 style="margin: 0; padding: 12px 16px; font-size: 15px; font-weight: 700; border-bottom: 1px solid #D5D9E0">AI 요약</h2>
-        <p style="margin: 0; padding: 12px 16px; font-size: 14px; line-height: 1.7">중앙도서관 정문 오른쪽 두 번째 벤치 파손. 이용자 안전 위험 있음. 현장 확인 후 보수 또는 사용 제한 필요.</p>
+        <p style="margin: 0; padding: 12px 16px; font-size: 14px; line-height: 1.7">{{cur.summary}}</p>
       </section>
 
       <section style="background: #FFFFFF; border: 1px solid #D5D9E0; padding: 14px 16px; display: flex; flex-direction: column; gap: 14px">
         <h2 style="margin: 0; font-size: 15px; font-weight: 700">처리</h2>
         <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600">분류 부서
-          <select style="height: 36px; border: 1px solid #B8BEC9; border-radius: 3px; padding: 0 8px; font-family: inherit; font-size: 13px; background: #FFFFFF">
-            <option>시설팀</option><option>정보통신 담당</option><option>장학 담당</option><option>학사 담당</option><option>기타 (직접 지정)</option>
+          <select value="{{dept}}" onChange="{{onDept}}" style="height: 36px; border: 1px solid #B8BEC9; border-radius: 3px; padding: 0 8px; font-family: inherit; font-size: 13px; background: #FFFFFF">
+            <option>시설팀</option><option>정보통신 담당</option><option>장학 담당</option><option>학사 담당</option>
           </select>
-          <span style="font-weight: 400; font-size: 12px; color: #4A5160">AI 분류 신뢰도 92%. 틀렸다면 바꿔주세요.</span>
+          <span style="font-weight: 400; font-size: 12px; color: #4A5160">AI 분류: {{cur.aiDept}} (신뢰도 {{cur.conf}})</span>
         </label>
-        <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600">담당자
-          <select style="height: 36px; border: 1px solid #B8BEC9; border-radius: 3px; padding: 0 8px; font-family: inherit; font-size: 13px; background: #FFFFFF">
-            <option>본인 ([담당자 이름])</option><option>미배정</option>
-          </select>
-        </label>
+        <sc-if value="{{moving}}" hint-placeholder-val="{{ false }}">
+          <div style="border: 1px solid #D5D9E0; background: #F7F8FA; padding: 10px; display: flex; flex-direction: column; gap: 8px">
+            <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600">이관 사유
+              <textarea value="{{reason}}" onChange="{{onReason}}" placeholder="예: 장학금 규정 문의라 장학 담당 소관입니다." style="height: 56px; resize: none; border: 1px solid #B8BEC9; border-radius: 3px; padding: 8px; font-family: inherit; font-size: 13px"></textarea>
+            </label>
+            <button onClick="{{transfer}}" style="height: 34px; border: 1px solid #1F2F6B; border-radius: 3px; background: #FFFFFF; color: #1F2F6B; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer">{{dept}}(으)로 이관</button>
+          </div>
+        </sc-if>
         <div style="display: flex; flex-direction: column; gap: 4px">
           <span style="font-size: 13px; font-weight: 600">처리 상태</span>
           <div role="radiogroup" aria-label="처리 상태" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid #B8BEC9; border-radius: 3px; overflow: hidden">
             <sc-for list="{{steps}}" as="s" hint-placeholder-count="3">
-              <button role="radio" aria-checked="{{s.on}}" onClick="{{s.pick}}" style="height: 36px; border: none; border-left: {{s.divider}}; background: {{s.bg}}; color: {{s.fg}}; font-family: inherit; font-size: 13px">{{s.label}}</button>
+              <button role="radio" aria-checked="{{s.on}}" onClick="{{s.pick}}" style="height: 34px; border: none; border-left: {{s.divider}}; background: {{s.bg}}; color: {{s.fg}}; font-family: inherit; font-size: 13px; cursor: pointer">{{s.label}}</button>
             </sc-for>
           </div>
         </div>
-        <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600">처리 메모 (내부용)
-          <textarea placeholder="예: 10/10 오전 현장 확인 예정" style="height: 72px; resize: none; border: 1px solid #B8BEC9; border-radius: 3px; padding: 8px; font-family: inherit; font-size: 13px"></textarea>
-        </label>
-        <button onClick="{{resolve}}" style="height: 40px; border: 1px solid #1F2F6B; border-radius: 3px; background: #1F2F6B; color: #FFFFFF; font-family: inherit; font-size: 14px; font-weight: 600">해결 완료 처리</button>
-        <sc-if value="{{toast}}" hint-placeholder-val="{{ false }}">
-          <div role="status" style="border: 1px solid #2F6B3A; background: #EEF5EF; color: #24502C; padding: 10px 12px; font-size: 13px">민원인에게 해결 완료 알림을 보냈습니다.</div>
+        <sc-if value="{{hasToast}}" hint-placeholder-val="{{ false }}">
+          <div role="status" style="border: 1px solid #2F6B3A; background: #EEF5EF; color: #24502C; padding: 10px 12px; font-size: 13px">{{toast}}</div>
         </sc-if>
       </section>
     </aside>
   </div>
+
+  <section style="margin: 18px 28px 0; background: #FFFFFF; border: 1px solid #D5D9E0">
+    <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 16px; border-bottom: 1px solid #D5D9E0">
+      <h2 style="margin: 0; font-size: 15px; font-weight: 700">민원인에게 답하기</h2>
+      <div style="display: flex; gap: 6px">
+        <button onClick="{{toggleChat}}" aria-expanded="{{showChat}}" style="height: 30px; padding: 0 12px; border: 1px solid {{chatBtn.border}}; border-radius: 3px; background: {{chatBtn.bg}}; color: {{chatBtn.fg}}; font-family: inherit; font-size: 13px; cursor: pointer">채팅 {{chatBtn.mark}}</button>
+        <button onClick="{{toggleAns}}" aria-expanded="{{showAns}}" style="height: 30px; padding: 0 12px; border: 1px solid {{ansBtn.border}}; border-radius: 3px; background: {{ansBtn.bg}}; color: {{ansBtn.fg}}; font-family: inherit; font-size: 13px; cursor: pointer">답변서 {{ansBtn.mark}}</button>
+      </div>
+    </div>
+
+    <sc-if value="{{noneOpen}}" hint-placeholder-val="{{ false }}">
+      <p style="margin: 0; padding: 16px; font-size: 13px; color: #4A5160">두 구획이 모두 접혀 있습니다. 위의 채팅 또는 답변서를 눌러 펼치세요.</p>
+    </sc-if>
+
+    <div ref="{{setWrap}}" style="display: flex; min-height: 300px">
+      <sc-if value="{{showChat}}" hint-placeholder-val="{{ true }}">
+        <div style="flex: 0 0 {{chatW}}; min-width: 0; display: flex; flex-direction: column">
+          <sc-if value="{{chatOff}}" hint-placeholder-val="{{ false }}">
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 10px; padding: 20px 16px">
+              <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #3A4150">이 민원은 채팅 없이 접수됐습니다. 추가 확인이 필요하면 채팅을 열어 민원인과 대화할 수 있습니다.</p>
+              <button onClick="{{enableChat}}" style="height: 34px; padding: 0 14px; border: 1px solid #1F2F6B; border-radius: 3px; background: #1F2F6B; color: #FFFFFF; font-family: inherit; font-size: 13px; cursor: pointer">채팅 활성화</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{chatOnNow}}" hint-placeholder-val="{{ true }}">
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 10px; max-height: 320px; overflow-y: auto; padding: 14px 16px">
+              <sc-for list="{{talk}}" as="m" hint-placeholder-count="3">
+                <div style="display: flex; flex-direction: column; align-items: {{m.align}}; gap: 2px">
+                  <span style="font-size: 12px; color: #4A5160">{{m.who}}</span>
+                  <div style="max-width: 80%; background: {{m.bg}}; border: 1px solid #D5D9E0; border-radius: 3px; padding: 8px 11px; font-size: 14px; line-height: 1.5">{{m.text}}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 16px; border-top: 1px solid #ECEEF2">
+              <label style="flex: 1 1 200px; display: flex"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden">채팅 메시지</span>
+                <input type="text" value="{{draft}}" onChange="{{onDraft}}" placeholder="민원인에게 보낼 메시지" style="flex: 1; height: 34px; border: 1px solid #B8BEC9; border-radius: 3px; padding: 0 10px; font-family: inherit; font-size: 13px">
+              </label>
+              <button onClick="{{send}}" style="height: 34px; padding: 0 14px; border: 1px solid #1F2F6B; border-radius: 3px; background: #FFFFFF; color: #1F2F6B; font-family: inherit; font-size: 13px; cursor: pointer">전송</button>
+              <button onClick="{{endChat}}" style="height: 34px; padding: 0 14px; border: 1px solid #2F6B3A; border-radius: 3px; background: #2F6B3A; color: #FFFFFF; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer">대화 종료 후 해결 완료</button>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{bothOpen}}" hint-placeholder-val="{{ true }}">
+        <button class="split" role="separator" aria-orientation="vertical" aria-label="채팅과 답변서 너비 조절" aria-valuenow="{{ratio}}" aria-valuemin="25" aria-valuemax="75" onPointerDown="{{dragStart}}" onPointerMove="{{dragMove}}" onPointerUp="{{dragEnd}}" onKeyDown="{{dragKey}}" style="flex: 0 0 10px; border: none; border-left: 1px solid #D5D9E0; border-right: 1px solid #D5D9E0; background: #EEF0F4; padding: 0; display: flex; align-items: center; justify-content: center">
+          <span style="width: 2px; height: 28px; background: #8C94A3"></span>
+        </button>
+      </sc-if>
+
+      <sc-if value="{{showAns}}" hint-placeholder-val="{{ true }}">
+        <div style="flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 8px; padding: 14px 16px">
+          <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600">공식 답변
+            <textarea value="{{answer}}" onChange="{{onAnswer}}" placeholder="민원인에게 보낼 처리 결과와 답변을 작성하세요." style="flex: 1; min-height: 160px; resize: vertical; border: 1px solid #B8BEC9; border-radius: 3px; padding: 10px; font-family: inherit; font-size: 14px; line-height: 1.6"></textarea>
+          </label>
+          <span style="font-size: 12px; color: #4A5160">보낸 답변은 민원인의 '나의 활동'에 공식 답변으로 표시됩니다.</span>
+          <div style="display: flex; justify-content: flex-end">
+            <button onClick="{{sendAnswer}}" style="height: 36px; padding: 0 16px; border: 1px solid #2F6B3A; border-radius: 3px; background: #2F6B3A; color: #FFFFFF; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer">답변 보내고 해결 완료</button>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </section>
+
+  <footer style="display: flex; justify-content: flex-end; align-items: center; gap: 12px; padding: 12px 28px; border-top: 1px solid #D5D9E0; background: #FFFFFF; margin-top: 28px">
+    <span style="font-size: 12px; color: #6A7180">2026 KHU AI Challenge 출품 시제품</span>
+    <img src="../assets/khu_wordmark.png" alt="KHU" style="height: 28px; width: auto">
+  </footer>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1040}}'>
 class Component extends DCLogic {
   constructor(p) {
     super(p);
-    this.state = { status: '해결 중', toast: false, draft: '', talk: [
-      { who: '시설 담당자 (본인)', text: '안녕하세요. 도서관 정문 기준 어느 쪽 벤치인지 알려주시겠어요?', me: true },
-      { who: '민원인', text: '정문에서 나와 오른쪽 두 번째 벤치예요.' },
-      { who: '시설 담당자 (본인)', text: '확인했습니다. 오늘 현장 확인 후 안내드리겠습니다.', me: true }
-    ] };
+    this.data = {
+      a: { label: '챗봇 대화 후 접수 (시설)', title: '정문 오른쪽 두 번째 벤치 파손', no: '2026-1001-023', date: '2026.10.01 23:06', where: '중앙도서관 정문 (민원인이 지도에서 선택)', route: 'chat', kind: '시설', aiDept: '시설팀', conf: '92%', hasPhoto: true,
+        body: '도서관 정문에서 나와 오른쪽 두 번째 벤치가 부서져 있어요. 앉으면 위험해 보입니다.',
+        summary: '중앙도서관 정문 오른쪽 두 번째 벤치 파손. 이용자 안전 위험 있음. 현장 확인 후 보수 또는 사용 제한 필요.',
+        bot: [['AI챗봇', '안녕하세요. 어떤 점이 불편하신가요?'], ['민원인', '도서관 정문에서 나와 오른쪽 두 번째 벤치가 부서져 있어요.'], ['AI챗봇', '확인했습니다. 시설 관련 민원으로 분류했어요.']],
+        chatOn: true, talk: [['시설 담당자 (본인)', '안녕하세요. 도서관 정문 기준 어느 쪽 벤치인지 알려주시겠어요?', 1], ['민원인', '정문에서 나와 오른쪽 두 번째 벤치예요.', 0], ['시설 담당자 (본인)', '확인했습니다. 오늘 현장 확인 후 안내드리겠습니다.', 1]], status: '해결 중' },
+      b: { label: '챗봇 이관 (장학)', title: '성적장학금 규정 문의', no: '2026-0930-008', date: '2026.09.30 10:33', where: '위치 없음 (채팅 문의)', route: 'bot', kind: '장학', aiDept: '장학 담당', conf: '77%', hasPhoto: false,
+        body: '성적장학금 받으려면 직전 학기 몇 학점 이상 들어야 하는지 궁금해요.',
+        summary: '성적장학금 최소 이수 학점 기준 문의. 챗봇이 학사 규정에서 답을 찾지 못해 이관됨.',
+        bot: [['AI챗봇', '안녕하세요. 어떤 점이 궁금하신가요?'], ['민원인', '성적장학금 받으려면 직전 학기 몇 학점 이상 들어야 하나요?'], ['AI챗봇', '정확한 기준을 찾지 못했어요. 장학 담당 부서로 연결해드릴게요.']],
+        chatOn: true, talk: [], status: '접수 완료' },
+      c: { label: '접수서 직접 작성 (시설)', title: '가로등 2개가 꺼져 있음', no: '2026-1009-004', date: '2026.10.09 09:12', where: '광장 분수대 주변 (민원인이 지도에서 선택)', route: 'form', kind: '시설', aiDept: '시설팀', conf: '88%', hasPhoto: true,
+        body: '광장 분수대 옆 가로등 두 개가 어젯밤부터 꺼져 있어서 밤에 많이 어두워요.',
+        summary: '광장 분수대 주변 가로등 2개 소등. 야간 보행 안전 관련으로 빠른 점검 필요.',
+        bot: [], chatOn: false, talk: [], status: '접수 완료' },
+      d: { label: '꾸미기로 접수 (시설)', title: '광장 분수대 주변 벤치 설치 요청', no: '2026-1002-011', date: '2026.10.02 15:40', where: '광장 분수대 주변 (꾸미기에서 선택)', route: 'deco', kind: '시설', aiDept: '시설팀', conf: '90%', hasPhoto: false, hasDeco: true,
+        body: '분수대 주변에 벤치 생성. 앉아서 쉴 곳이 없어서 꾸미기로 만들어봤어요.',
+        summary: '광장 분수대 주변 벤치·화단 설치 요청. 민원인이 꾸미기로 만든 개선안 이미지 첨부.',
+        bot: [], chatOn: false, talk: [], status: '접수 완료' },
+      e: { label: '재문의 (답변서 후 채팅)', title: '화장실 핸드드라이어 고장', no: '2026-0924-031', date: '2026.09.24 14:12', where: '체육관 2층 (민원인이 지도에서 선택)', route: 'form', kind: '시설', aiDept: '시설팀', conf: '95%', hasPhoto: false,
+        body: '2층 화장실 핸드드라이어가 작동하지 않아요.',
+        summary: '체육관 2층 화장실 핸드드라이어 고장. 전원 조치 후 해결 완료했으나 민원인이 재문의함. 여전히 바람이 약하다는 내용.',
+        isReopen: true, reopenAt: '2026.10.09 10:05', prevDone: '2026.10.07', prevAnswer: '2층 화장실 핸드드라이어 전원을 점검해 다시 작동하도록 조치했습니다.',
+        bot: [], chatOn: true, talk: [['시스템', '민원인이 해결 완료 2일 뒤 재문의했습니다. 채팅이 자동으로 열렸습니다.', 1], ['민원인', '켜지긴 하는데 바람이 너무 약해서 손이 안 말라요. 교체가 필요해 보여요.', 0]], status: '해결 중' }
+    };
+    const per = {};
+    Object.keys(this.data).forEach((k) => { const d = this.data[k]; per[k] = { status: d.status, chatOn: d.chatOn, talk: d.talk.slice(), dept: d.aiDept, answer: '', reason: '', toast: '' }; });
+    this.state = { cid: 'a', per, draft: '', showChat: true, showAns: true, ratio: 50, drag: false, showBody: true, showBot: true, ratio2: 60 };
   }
+  upd(patch) { const k = this.state.cid; this.setState({ per: { ...this.state.per, [k]: { ...this.state.per[k], ...patch } } }); }
   renderVals() {
+    const s = this.state, k = s.cid, d = this.data[k], p = s.per[k];
     const C = { '접수 완료': '#1F2F6B', '해결 중': '#8A6416', '해결 완료': '#2F6B3A' };
-    const steps = ['접수 완료', '해결 중', '해결 완료'].map((l, i) => {
-      const on = this.state.status === l;
-      return { label: l, on, divider: i ? '1px solid #B8BEC9' : 'none', bg: on ? '#1F2F6B' : '#FFFFFF', fg: on ? '#FFFFFF' : '#1F2430', pick: () => this.setState({ status: l, toast: false }) };
-    });
+    const routeLabel = { chat: '챗봇 대화 후 접수', bot: '챗봇 이관 (챗봇이 답하지 못한 문의)', form: '접수서 직접 작성', deco: '꾸미기로 접수 (개선안 이미지 첨부)' }[d.route];
+    const named = d.kind === '학사' || d.kind === '장학';
+    const now = () => { const t = new Date(); return String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0'); };
+    const both = s.showChat && s.showAns;
+    const both2 = s.showBody && s.showBot;
+    const tog = (on) => ({ bg: on ? '#1F2F6B' : '#FFFFFF', fg: on ? '#FFFFFF' : '#1F2430', border: on ? '#1F2F6B' : '#B8BEC9', mark: on ? '접기' : '펼치기' });
     return {
-      steps, status: this.state.status, statusColor: C[this.state.status], toast: this.state.toast,
-      talk: this.state.talk.map((m) => ({ ...m, align: m.me ? 'flex-end' : 'flex-start', bg: m.me ? '#EEF1F8' : '#FFFFFF', fg: '#1F2430' })),
-      draft: this.state.draft,
-      onDraft: (e) => this.setState({ draft: e.target.value }),
-      send: () => { const t = this.state.draft.trim(); if (!t) return; this.setState({ talk: this.state.talk.concat([{ who: '시설 담당자 (본인)', text: t, me: true }]), draft: '' }); },
-      resolve: () => this.setState({ status: '해결 완료', toast: true })
+      cases: Object.keys(this.data).map((id) => ({ label: this.data[id].label, on: id === k, bg: id === k ? '#1F2F6B' : '#FFFFFF', fg: id === k ? '#FFFFFF' : '#1F2430', border: id === k ? '#1F2F6B' : '#B8BEC9', pick: () => this.setState({ cid: id, draft: '' }) })),
+      cur: { ...d, hasDeco: !!d.hasDeco, isReopen: !!d.isReopen, routeLabel, hasBot: d.bot.length > 0, noBot: d.bot.length === 0, bot: d.bot.map(([who, text]) => ({ who, text })),
+        who: named ? '[이름] / [학번]' : '익명', whoWhy: named ? '학사·장학 문의는 본인 확인을 위해 표시' : '시설 민원은 신원 비공개' },
+      status: p.status, statusColor: C[p.status],
+      steps: ['접수 완료', '해결 중', '해결 완료'].map((l, i) => ({ label: l, on: p.status === l, divider: i ? '1px solid #B8BEC9' : 'none', bg: p.status === l ? '#1F2F6B' : '#FFFFFF', fg: p.status === l ? '#FFFFFF' : '#1F2430', pick: () => this.upd({ status: l, toast: '' }) })),
+      dept: p.dept, onDept: (e) => this.upd({ dept: e.target.value, toast: '' }), moving: p.dept !== d.aiDept,
+      reason: p.reason, onReason: (e) => this.upd({ reason: e.target.value }),
+      transfer: () => this.upd({ toast: p.dept + '(으)로 이관했습니다. 이관 사유가 새 담당 부서에 함께 전달됩니다.' }),
+      hasToast: !!p.toast, toast: p.toast,
+      showChat: s.showChat, showAns: s.showAns, bothOpen: both, noneOpen: !s.showChat && !s.showAns,
+      chatBtn: tog(s.showChat), ansBtn: tog(s.showAns),
+      toggleChat: () => this.setState({ showChat: !s.showChat }), toggleAns: () => this.setState({ showAns: !s.showAns }),
+      chatW: both ? s.ratio + '%' : '100%', ratio: s.ratio,
+      chatOff: !p.chatOn, chatOnNow: p.chatOn,
+      enableChat: () => this.upd({ chatOn: true, talk: [['시스템', '담당자가 채팅을 시작했습니다. 민원인에게 알림이 전송됩니다.', 1]] }),
+      talk: p.talk.map(([who, text, me]) => ({ who, text, align: me ? 'flex-end' : 'flex-start', bg: me ? '#EEF1F8' : '#FFFFFF' })),
+      draft: s.draft, onDraft: (e) => this.setState({ draft: e.target.value }),
+      send: () => { const t = s.draft.trim(); if (!t) return; this.upd({ talk: p.talk.concat([['담당자 (본인)', t, 1]]) }); this.setState({ draft: '' }); },
+      endChat: () => this.upd({ status: '해결 완료', toast: '채팅을 종료하고 해결 완료 처리했습니다. 민원인에게 알림을 보냈습니다.' }),
+      answer: p.answer, onAnswer: (e) => this.upd({ answer: e.target.value }),
+      sendAnswer: () => { if (!p.answer.trim()) { this.upd({ toast: '답변 내용을 먼저 작성해주세요.' }); return; } this.upd({ status: '해결 완료', toast: '공식 답변을 보내고 해결 완료 처리했습니다.' }); },
+      showBody: s.showBody, showBot: s.showBot, infoBoth: both2, infoNone: !s.showBody && !s.showBot,
+      bodyBtn: tog(s.showBody), botBtn: tog(s.showBot),
+      toggleBody: () => this.setState({ showBody: !s.showBody }), toggleBot: () => this.setState({ showBot: !s.showBot }),
+      bodyW: both2 ? s.ratio2 + '%' : '100%', ratio2: s.ratio2,
+      setWrap2: (el) => { this._wrap2 = el; },
+      drag2Start: (e) => { e.currentTarget.setPointerCapture && e.currentTarget.setPointerCapture(e.pointerId); this.setState({ drag: 2 }); },
+      drag2Move: (e) => { if (s.drag !== 2 || !this._wrap2) return; const r = this._wrap2.getBoundingClientRect(); let v = Math.round((e.clientX - r.left) / r.width * 100); v = Math.max(30, Math.min(75, v)); if (v !== s.ratio2) this.setState({ ratio2: v }); },
+      drag2Key: (e) => { if (e.key === 'ArrowLeft') this.setState({ ratio2: Math.max(30, s.ratio2 - 5) }); if (e.key === 'ArrowRight') this.setState({ ratio2: Math.min(75, s.ratio2 + 5) }); },
+      setWrap: (el) => { this._wrap = el; },
+      dragStart: (e) => { e.currentTarget.setPointerCapture && e.currentTarget.setPointerCapture(e.pointerId); this.setState({ drag: 1 }); },
+      dragMove: (e) => { if (s.drag !== 1 || !this._wrap) return; const r = this._wrap.getBoundingClientRect(); let v = Math.round((e.clientX - r.left) / r.width * 100); v = Math.max(25, Math.min(75, v)); if (v !== s.ratio) this.setState({ ratio: v }); },
+      dragEnd: () => this.setState({ drag: 0 }),
+      dragKey: (e) => { if (e.key === 'ArrowLeft') this.setState({ ratio: Math.max(25, s.ratio - 5) }); if (e.key === 'ArrowRight') this.setState({ ratio: Math.min(75, s.ratio + 5) }); }
     };
   }
 }
