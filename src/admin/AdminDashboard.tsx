@@ -23,11 +23,12 @@ import {
 import { ArrowRight } from '@carbon/icons-react'
 import AdminShell from './AdminShell'
 import { STATUS_LABEL, STATUS_TAG, elapsed, fmt, isLate, isToday } from './common'
-import { ME, type ComplaintRow } from './sample'
+import type { BoardRow, ComplaintRow } from './types'
 import { useAdminStore } from './store'
 
 type Card = 'working' | 'late' | 'doneToday'
-const CARD_MATCH: Record<Card, (r: ComplaintRow, now: number) => boolean> = {
+type Timed = Pick<ComplaintRow, 'status' | 'createdAt' | 'resolvedAt'>
+const CARD_MATCH: Record<Card, (r: Timed, now: number) => boolean> = {
   working: (r) => r.status !== 'resolved',
   late: (r, now) => isLate(r, now),
   doneToday: (r) => r.status === 'resolved' && !!r.resolvedAt && isToday(r.resolvedAt),
@@ -39,7 +40,7 @@ const CARD_SUB: Record<Card, string> = {
   doneToday: '오늘 처리 완료한 민원',
 }
 
-const byWork = (a: ComplaintRow, b: ComplaintRow) =>
+const byWork = (a: Timed, b: Timed) =>
   Number(a.status === 'resolved') - Number(b.status === 'resolved') || a.createdAt.getTime() - b.createdAt.getTime()
 
 export default function AdminDashboard() {
@@ -47,13 +48,15 @@ export default function AdminDashboard() {
   const location = useLocation()
   const [params, setParams] = useSearchParams()
   const tab = params.get('tab') === 'dept' ? 1 : 0
-  const { rows, queue, claimNext } = useAdminStore()
+  const { me, rows, board, queue, claimNext } = useAdminStore()
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState<string | null>(null)
   const [card, setCard] = useState<Card | null>(null)
   const [q, setQ] = useState('')
   const notice = (location.state as { notice?: string } | null)?.notice
   const now = Date.now()
 
-  const mine = rows.filter((r) => r.owner === ME.name)
+  const mine = rows
   const shown = useMemo(() => {
     const term = q.trim()
     return mine
@@ -61,12 +64,21 @@ export default function AdminDashboard() {
       .sort(byWork)
   }, [mine, card, q, now])
 
-  const waitingTotal = queue.mine.length + queue.unassigned.length
-  const oldest = [...queue.mine, ...queue.unassigned].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())[0]
+  const waitingTotal = queue.mine + queue.unassigned
 
-  const takeNext = () => {
-    const next = claimNext()
-    if (next) navigate(`/admin/complaints/${next.no}`)
+  // 서버가 한 건씩 배정한다. 그 사이 다른 직원이 먼저 받아 대기가 0이 됐으면 알려 준다
+  const takeNext = async () => {
+    setBusy(true)
+    setErr(null)
+    try {
+      const no = await claimNext()
+      if (no) navigate(`/admin/complaints/${no}`)
+      else setErr('방금 다른 직원이 남은 민원을 받아 대기 중인 민원이 없습니다.')
+    } catch (e) {
+      setErr((e as Error).message)
+    } finally {
+      setBusy(false)
+    }
   }
 
   const today = new Date()
@@ -76,7 +88,7 @@ export default function AdminDashboard() {
     <AdminShell>
       <div className="admin-page-head">
         <div>
-          <h1>{ME.department} 민원</h1>
+          <h1>{me.department} 민원</h1>
           <p>
             {today.getFullYear()}.{String(today.getMonth() + 1).padStart(2, '0')}.{String(today.getDate()).padStart(2, '0')} (
             {days[today.getDay()]}) 기준
@@ -93,6 +105,7 @@ export default function AdminDashboard() {
           onClose={() => navigate('.', { replace: true, state: null })}
         />
       )}
+      {err && <InlineNotification kind="error" title={err} lowContrast className="detail-notice" onClose={() => setErr(null)} />}
 
       <Tabs selectedIndex={tab} onChange={({ selectedIndex }) => setParams(selectedIndex === 1 ? { tab: 'dept' } : {})}>
         <TabList aria-label="보기 선택" className="admin-tabs">
@@ -109,15 +122,15 @@ export default function AdminDashboard() {
                   </span>
                   <span className="queue-value num">{waitingTotal}</span>
                   <span className="kpi-sub">
-                    {ME.department} {queue.mine.length}건 · 미분류 {queue.unassigned.length}건
+                    {me.department} {queue.mine}건 · 미분류 {queue.unassigned}건
                   </span>
                 </div>
                 <div className="queue-action">
-                  <Button size="lg" renderIcon={ArrowRight} disabled={waitingTotal === 0} onClick={takeNext}>
-                    다음 민원 받기
+                  <Button size="lg" renderIcon={ArrowRight} disabled={waitingTotal === 0 || busy} onClick={takeNext}>
+                    {busy ? '받는 중' : '다음 민원 받기'}
                   </Button>
                   <span className="kpi-sub">
-                    {oldest ? `가장 오래 기다린 민원 ${elapsed(oldest.createdAt, now)}째` : '기다리는 민원이 없습니다'}
+                    {queue.oldest ? `가장 오래 기다린 민원 ${elapsed(queue.oldest, now)}째` : '기다리는 민원이 없습니다'}
                   </span>
                 </div>
               </div>
@@ -222,7 +235,7 @@ export default function AdminDashboard() {
           </TabPanel>
 
           <TabPanel className="admin-tabpanel">
-            <DeptBoard rows={rows} now={now} />
+            <DeptBoard board={board} me={me.name} now={now} />
           </TabPanel>
         </TabPanels>
       </Tabs>
@@ -231,12 +244,12 @@ export default function AdminDashboard() {
 }
 
 // 부서 현황: 읽기 전용. 배정 전 민원은 내용을 감춘다 (남이 처리할 민원을 미리 읽지 않도록)
-function DeptBoard({ rows, now }: { rows: ComplaintRow[]; now: number }) {
-  const dept = rows.filter((r) => r.department === ME.department).sort(byWork)
+function DeptBoard({ board, me, now }: { board: BoardRow[]; me: string; now: number }) {
+  const dept = [...board].sort(byWork)
   const people = [...new Set(dept.map((r) => r.owner).filter((o): o is string => !!o))].sort((a, b) =>
-    a === ME.name ? -1 : b === ME.name ? 1 : a.localeCompare(b, 'ko'),
+    a === me ? -1 : b === me ? 1 : a.localeCompare(b, 'ko'),
   )
-  const stat = (name: string, f: (r: ComplaintRow) => boolean) => dept.filter((r) => r.owner === name && f(r)).length
+  const stat = (name: string, f: (r: BoardRow) => boolean) => dept.filter((r) => r.owner === name && f(r)).length
 
   return (
     <div className="dept-board">
@@ -255,7 +268,7 @@ function DeptBoard({ rows, now }: { rows: ComplaintRow[]; now: number }) {
               <TableRow key={p}>
                 <TableCell>
                   {p}
-                  {p === ME.name && <span className="muted"> (나)</span>}
+                  {p === me && <span className="muted"> (나)</span>}
                 </TableCell>
                 <TableCell className="num cell-num">{stat(p, (r) => CARD_MATCH.working(r, now))}</TableCell>
                 <TableCell className="num cell-num">{stat(p, (r) => isLate(r, now))}</TableCell>

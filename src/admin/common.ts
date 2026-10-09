@@ -1,4 +1,4 @@
-import type { Channel, ComplaintRow, Status } from './sample'
+import type { Channel, Status } from './types'
 
 export const STATUSES: Status[] = ['received', 'in_progress', 'resolved']
 // DB에는 3단계만 저장. 직원 화면은 담당자 유무로 '배정 대기'를 구분해 보여준다
@@ -20,7 +20,7 @@ export const CHANNEL_LABEL: Record<Channel, string> = {
 }
 
 const LATE_MS = 3 * 24 * 60 * 60 * 1000
-export const isLate = (r: ComplaintRow, now: number) => r.status !== 'resolved' && now - r.createdAt.getTime() >= LATE_MS
+export const isLate = (r: { status: Status; createdAt: Date }, now: number) => r.status !== 'resolved' && now - r.createdAt.getTime() >= LATE_MS
 
 const p2 = (n: number) => String(n).padStart(2, '0')
 export const fmt = (d: Date) => `${p2(d.getMonth() + 1)}.${p2(d.getDate())} ${p2(d.getHours())}:${p2(d.getMinutes())}`

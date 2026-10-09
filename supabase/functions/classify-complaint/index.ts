@@ -11,9 +11,9 @@
 //   4. 결과를 complaints의 department, target_college, ai_confidence, ai_summary에 저장
 //   5. 분류 결과(출력 JSON)를 그대로 돌려준다
 //
-// 분류가 실패해도 민원은 이미 저장돼 있다(부서 칸만 비어 있음 → admin이 배정).
+// 분류가 실패해도 민원은 이미 저장돼 있다(부서 칸만 비어 있음 → 미분류 대기열에서 직원이 받는다).
 // 직원이 부서를 직접 고른 민원(department 있음 + ai_confidence 없음)과
-// 담당자가 이미 확인한 민원(read_at 있음)은 다시 분류하지 않는다.
+// 담당자가 이미 받은 민원(read_at 있음)은 다시 분류하지 않는다.
 // =====================================================================
 
 import { createClient } from "npm:@supabase/supabase-js@2";

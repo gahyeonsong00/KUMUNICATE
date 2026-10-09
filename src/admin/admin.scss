@@ -560,3 +560,23 @@ html {
   display: flex;
   gap: 0.5rem;
 }
+
+// 직원 로그인
+.login {
+  max-width: 28rem;
+  margin: 3rem auto;
+  display: grid;
+  gap: 1rem;
+
+  h1 { font-size: 1.75rem; font-weight: 600; }
+  .login-google { max-width: none; width: 100%; }
+}
+.login-demo {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--cds-border-subtle);
+
+  h2 { font-size: 1rem; font-weight: 600; }
+}
