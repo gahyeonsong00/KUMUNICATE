@@ -1,0 +1,101 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Activity.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "민원인 · 나의 활동",
+      "w": 390,
+      "x": 1410,
+      "y": 0
+    },
+    "AdminDashboard.dc.html": {
+      "expand": "fill",
+      "h": 1040,
+      "is_interactive": true,
+      "title": "직원 · 민원 현황 & 민원함",
+      "w": 1440,
+      "x": 0,
+      "y": 1240
+    },
+    "AdminDetail.dc.html": {
+      "expand": "fill",
+      "h": 1040,
+      "is_interactive": true,
+      "title": "직원 · 민원 상세",
+      "w": 1440,
+      "x": 1517,
+      "y": 1240
+    },
+    "Chat.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "민원인 · 민원 접수 채팅",
+      "w": 390,
+      "x": 940,
+      "y": 0
+    },
+    "Decorate.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "민원인 · 꾸미기",
+      "w": 390,
+      "x": 1880,
+      "y": 0
+    },
+    "Login.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "공통 · 로그인 (역할 분기)",
+      "w": 390,
+      "x": 0,
+      "y": 0
+    },
+    "Main.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "민원인 · 홈 지도",
+      "w": 390,
+      "x": 470,
+      "y": 0
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-10-09T02:00:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {
+    "t1": {
+      "kind": "title1",
+      "maxW": 2270,
+      "text": "민원인 화면",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "t2": {
+      "kind": "title1",
+      "maxW": 2960,
+      "text": "직원(민원 담당자) 화면 ",
+      "w": 240,
+      "x": 0,
+      "y": 960
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Login.dc.html",
+    "Chat.dc.html",
+    "Activity.dc.html",
+    "Decorate.dc.html",
+    "AdminDashboard.dc.html",
+    "AdminDetail.dc.html"
+  ],
+  "pages": [],
+  "title": "경희대 키우기 민원인·직원 웹앱"
+}

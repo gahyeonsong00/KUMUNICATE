@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>민원 상세</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1F2F6B}a:hover{color:#14204D}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid #1F2F6B;outline-offset:1px}
+</style>
+</helmet>
+<div style="min-height: 1040px; font-family: 'IBM Plex Sans KR', sans-serif; color: #1F2430; background: #F3F4F6; display: flex; flex-direction: column">
+  <header style="background: #1F2F6B; color: #FFFFFF; padding: 0 28px; height: 56px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px">
+    <div style="display: flex; align-items: center; gap: 14px">
+      <span style="font-weight: 700; font-size: 17px">경희대 키우기 민원관리</span>
+      <span style="font-size: 12px; padding: 2px 8px; border: 1px solid #8C97C2; color: #DDE2F2">담당자 시스템</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 18px; font-size: 13px">
+      <a href="AdminDashboard.dc.html" style="color: #DDE2F2">민원함으로 돌아가기</a>
+      <span>시설팀 [담당자 이름]</span>
+    </div>
+  </header>
+
+  <div style="padding: 20px 28px 8px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px; border-bottom: 1px solid #D5D9E0; margin: 0 28px; padding-left: 0; padding-right: 0">
+    <h1 style="margin: 0; font-size: 22px; font-weight: 700">정문 오른쪽 두 번째 벤치 파손</h1>
+    <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #4A5160">2026-1001-023</span>
+    <span style="font-size: 12px; padding: 1px 8px; border: 1px solid {{statusColor}}; color: {{statusColor}}; border-radius: 3px">{{status}}</span>
+  </div>
+
+  <div style="padding: 18px 28px 40px; display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start">
+    <div style="flex: 3 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 18px">
+      <section style="background: #FFFFFF; border: 1px solid #D5D9E0">
+        <h2 style="margin: 0; padding: 12px 16px; font-size: 15px; font-weight: 700; border-bottom: 1px solid #D5D9E0">접수 내용</h2>
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px">
+          <tr><th style="width: 120px; text-align: left; padding: 9px 16px; background: #F4F6FA; font-weight: 600; border-bottom: 1px solid #ECEEF2">접수일시</th><td style="padding: 9px 16px; border-bottom: 1px solid #ECEEF2; font-family: 'IBM Plex Mono', monospace">2026.10.01 23:06</td></tr>
+          <tr><th style="text-align: left; padding: 9px 16px; background: #F4F6FA; font-weight: 600; border-bottom: 1px solid #ECEEF2">위치</th><td style="padding: 9px 16px; border-bottom: 1px solid #ECEEF2">중앙도서관 정문 (민원인이 지도에서 선택)</td></tr>
+          <tr><th style="text-align: left; padding: 9px 16px; background: #F4F6FA; font-weight: 600; border-bottom: 1px solid #ECEEF2">접수 경로</th><td style="padding: 9px 16px; border-bottom: 1px solid #ECEEF2">지도 위치 선택 후 챗봇 접수</td></tr>
+          <tr><th style="text-align: left; padding: 9px 16px; background: #F4F6FA; font-weight: 600; vertical-align: top">원문</th><td style="padding: 9px 16px; line-height: 1.7">도서관 정문에서 나와 오른쪽 두 번째 벤치가 부서져 있어요. 앉으면 위험해 보입니다.</td></tr>
+        </table>
+        <div style="padding: 0 16px 16px">
+          <div style="height: 150px; border: 1px dashed #B8BEC9; background: #F7F8FA; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #4A5160">[민원인 첨부 사진]</div>
+        </div>
+      </section>
+
+      <section style="background: #FFFFFF; border: 1px solid #D5D9E0">
+        <h2 style="margin: 0; padding: 12px 16px; font-size: 15px; font-weight: 700; border-bottom: 1px solid #D5D9E0">민원인과 채팅</h2>
+        <div style="display: flex; flex-direction: column; gap: 10px; max-height: 280px; overflow-y: auto; padding: 14px 16px">
+          <sc-for list="{{talk}}" as="m" hint-placeholder-count="3">
+            <div style="display: flex; flex-direction: column; align-items: {{m.align}}; gap: 2px">
+              <span style="font-size: 12px; color: #4A5160">{{m.who}}</span>
+              <div style="max-width: 70%; background: {{m.bg}}; color: {{m.fg}}; border: 1px solid #D5D9E0; border-radius: 3px; padding: 8px 11px; font-size: 14px; line-height: 1.5">{{m.text}}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid #ECEEF2">
+          <label style="flex: 1; display: flex"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden">답장</span>
+            <input type="text" value="{{draft}}" onChange="{{onDraft}}" placeholder="민원인에게 보낼 메시지" style="flex: 1; height: 36px; border: 1px solid #B8BEC9; border-radius: 3px; padding: 0 10px; font-family: inherit; font-size: 13px">
+          </label>
+          <button onClick="{{send}}" style="height: 36px; padding: 0 16px; border: 1px solid #1F2F6B; border-radius: 3px; background: #1F2F6B; color: #FFFFFF; font-family: inherit; font-size: 13px">전송</button>
+        </div>
+      </section>
+
+      <section style="background: #FFFFFF; border: 1px solid #D5D9E0">
+        <h2 style="margin: 0; padding: 12px 16px; font-size: 15px; font-weight: 700; border-bottom: 1px solid #D5D9E0">챗봇 접수 기록</h2>
+        <div style="padding: 12px 16px; font-size: 13px; line-height: 1.7; display: flex; flex-direction: column; gap: 4px; color: #3A4150">
+          <span><b>AI챗봇</b> 안녕하세요. 어떤 점이 불편하신가요?</span>
+          <span><b>민원인</b> 도서관 정문에서 나와 오른쪽 두 번째 벤치가 부서져 있어요.</span>
+          <span><b>AI챗봇</b> 확인했습니다. 시설 관련 민원으로 분류했어요.</span>
+        </div>
+      </section>
+    </div>
+
+    <aside style="flex: 2 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 18px">
+      <section style="background: #FFFFFF; border: 1px solid #D5D9E0">
+        <h2 style="margin: 0; padding: 12px 16px; font-size: 15px; font-weight: 700; border-bottom: 1px solid #D5D9E0">AI 요약</h2>
+        <p style="margin: 0; padding: 12px 16px; font-size: 14px; line-height: 1.7">중앙도서관 정문 오른쪽 두 번째 벤치 파손. 이용자 안전 위험 있음. 현장 확인 후 보수 또는 사용 제한 필요.</p>
+      </section>
+
+      <section style="background: #FFFFFF; border: 1px solid #D5D9E0; padding: 14px 16px; display: flex; flex-direction: column; gap: 14px">
+        <h2 style="margin: 0; font-size: 15px; font-weight: 700">처리</h2>
+        <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600">분류 부서
+          <select style="height: 36px; border: 1px solid #B8BEC9; border-radius: 3px; padding: 0 8px; font-family: inherit; font-size: 13px; background: #FFFFFF">
+            <option>시설팀</option><option>정보통신 담당</option><option>장학 담당</option><option>학사 담당</option><option>기타 (직접 지정)</option>
+          </select>
+          <span style="font-weight: 400; font-size: 12px; color: #4A5160">AI 분류 신뢰도 92%. 틀렸다면 바꿔주세요.</span>
+        </label>
+        <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600">담당자
+          <select style="height: 36px; border: 1px solid #B8BEC9; border-radius: 3px; padding: 0 8px; font-family: inherit; font-size: 13px; background: #FFFFFF">
+            <option>본인 ([담당자 이름])</option><option>미배정</option>
+          </select>
+        </label>
+        <div style="display: flex; flex-direction: column; gap: 4px">
+          <span style="font-size: 13px; font-weight: 600">처리 상태</span>
+          <div role="radiogroup" aria-label="처리 상태" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid #B8BEC9; border-radius: 3px; overflow: hidden">
+            <sc-for list="{{steps}}" as="s" hint-placeholder-count="3">
+              <button role="radio" aria-checked="{{s.on}}" onClick="{{s.pick}}" style="height: 36px; border: none; border-left: {{s.divider}}; background: {{s.bg}}; color: {{s.fg}}; font-family: inherit; font-size: 13px">{{s.label}}</button>
+            </sc-for>
+          </div>
+        </div>
+        <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600">처리 메모 (내부용)
+          <textarea placeholder="예: 10/10 오전 현장 확인 예정" style="height: 72px; resize: none; border: 1px solid #B8BEC9; border-radius: 3px; padding: 8px; font-family: inherit; font-size: 13px"></textarea>
+        </label>
+        <button onClick="{{resolve}}" style="height: 40px; border: 1px solid #1F2F6B; border-radius: 3px; background: #1F2F6B; color: #FFFFFF; font-family: inherit; font-size: 14px; font-weight: 600">해결 완료 처리</button>
+        <sc-if value="{{toast}}" hint-placeholder-val="{{ false }}">
+          <div role="status" style="border: 1px solid #2F6B3A; background: #EEF5EF; color: #24502C; padding: 10px 12px; font-size: 13px">민원인에게 해결 완료 알림을 보냈습니다.</div>
+        </sc-if>
+      </section>
+    </aside>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1040}}'>
+class Component extends DCLogic {
+  constructor(p) {
+    super(p);
+    this.state = { status: '해결 중', toast: false, draft: '', talk: [
+      { who: '시설 담당자 (본인)', text: '안녕하세요. 도서관 정문 기준 어느 쪽 벤치인지 알려주시겠어요?', me: true },
+      { who: '민원인', text: '정문에서 나와 오른쪽 두 번째 벤치예요.' },
+      { who: '시설 담당자 (본인)', text: '확인했습니다. 오늘 현장 확인 후 안내드리겠습니다.', me: true }
+    ] };
+  }
+  renderVals() {
+    const C = { '접수 완료': '#1F2F6B', '해결 중': '#8A6416', '해결 완료': '#2F6B3A' };
+    const steps = ['접수 완료', '해결 중', '해결 완료'].map((l, i) => {
+      const on = this.state.status === l;
+      return { label: l, on, divider: i ? '1px solid #B8BEC9' : 'none', bg: on ? '#1F2F6B' : '#FFFFFF', fg: on ? '#FFFFFF' : '#1F2430', pick: () => this.setState({ status: l, toast: false }) };
+    });
+    return {
+      steps, status: this.state.status, statusColor: C[this.state.status], toast: this.state.toast,
+      talk: this.state.talk.map((m) => ({ ...m, align: m.me ? 'flex-end' : 'flex-start', bg: m.me ? '#EEF1F8' : '#FFFFFF', fg: '#1F2430' })),
+      draft: this.state.draft,
+      onDraft: (e) => this.setState({ draft: e.target.value }),
+      send: () => { const t = this.state.draft.trim(); if (!t) return; this.setState({ talk: this.state.talk.concat([{ who: '시설 담당자 (본인)', text: t, me: true }]), draft: '' }); },
+      resolve: () => this.setState({ status: '해결 완료', toast: true })
+    };
+  }
+}
+</script>
+</body>
+</html>

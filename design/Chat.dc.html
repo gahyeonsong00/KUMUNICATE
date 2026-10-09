@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>경희대 키우기 민원 접수 채팅</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@font-face{font-family:'Galmuri11';src:url(../assets/fonts/Galmuri11.woff2) format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Galmuri11';src:url(../assets/fonts/Galmuri11-Bold.woff2) format('woff2');font-weight:700;font-display:swap}
+body{margin:0}
+a{color:#7E2219}a:hover{color:#5E1A13}
+*{-webkit-font-smoothing:none}
+.crisp{image-rendering:pixelated}
+.panel{background:#F6EBCF;border:3px solid #3A2617;box-shadow:inset 0 0 0 2px #FFF7E2,inset 0 0 0 4px #D9C08E,4px 4px 0 rgba(58,38,23,.45)}
+.plate{background:#8A5A33;color:#FFF3D6;border:3px solid #3A2617;box-shadow:inset 0 2px 0 #B07A48,inset 0 -3px 0 #5E3B20}
+.btn{background:#B23A2E;color:#FFF6E6;border:3px solid #3A2617;box-shadow:inset 0 3px 0 #D9644F,inset 0 -4px 0 #7E2219,3px 3px 0 rgba(58,38,23,.45);cursor:pointer;text-decoration:none}
+.btn2{background:#6E9A34;color:#FFFBEA;border:3px solid #3A2617;box-shadow:inset 0 3px 0 #94BF4E,inset 0 -4px 0 #4A6D20,3px 3px 0 rgba(58,38,23,.45);cursor:pointer;text-decoration:none}
+.btn3{background:#EAD9AE;color:#3A2617;border:3px solid #3A2617;box-shadow:inset 0 3px 0 #FFF4D2,inset 0 -4px 0 #C2A66C,3px 3px 0 rgba(58,38,23,.45);cursor:pointer;text-decoration:none}
+.btn:active,.btn2:active,.btn3:active{transform:translateY(2px);box-shadow:inset 0 2px 0 rgba(0,0,0,.15)}
+.slot{background:#E9D9B0;border:3px solid #3A2617;box-shadow:inset 3px 3px 0 #C9AF77}
+input:focus,textarea:focus{outline:3px solid #E8B64A;outline-offset:0}
+@media (prefers-reduced-motion: no-preference){
+.bob{animation:bob 1.2s steps(2) infinite}
+@keyframes bob{50%{transform:translateY(-3px)}}
+.walk{transition:left .6s steps(6),top .6s steps(6)}
+.bar{width:0;animation:fill 1.6s steps(8) forwards}
+@keyframes fill{to{width:100%}}
+}
+@media (prefers-reduced-motion: reduce){.bar{width:100%}}
+</style>
+</helmet>
+
+<div style="width: 390px; height: 844px; display: flex; flex-direction: column; position: relative; overflow: hidden; font-family: 'Galmuri11', monospace; color: #3A2617; background: #6F8F2C">
+  <img src="../assets/campus_map.jpg" alt="" class="crisp" style="position: absolute; left: -90px; top: -260px; width: 800px; height: 1000px">
+  <div style="position: absolute; inset: 0; background: rgba(58,38,23,.35)"></div>
+
+  <header class="panel" style="position: relative; z-index: 2; margin: 10px 10px 0; height: 56px; box-sizing: border-box; display: flex; align-items: center; gap: 8px; padding: 0 8px">
+    <a href="Main.dc.html" aria-label="지도로 돌아가기" class="btn3" style="width: 40px; height: 40px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; padding: 0">
+      <svg width="18" height="18" viewBox="0 0 10 10" shape-rendering="crispEdges" fill="#3A2617"><rect x="5" y="1" width="1" height="1"></rect><rect x="4" y="2" width="1" height="1"></rect><rect x="3" y="3" width="1" height="1"></rect><rect x="2" y="4" width="6" height="2"></rect><rect x="3" y="6" width="1" height="1"></rect><rect x="4" y="7" width="1" height="1"></rect><rect x="5" y="8" width="1" height="1"></rect></svg>
+    </a>
+    <span style="font-weight: 700; font-size: 16px">민원 접수 채팅</span>
+    <span class="plate" style="margin-left: auto; font-size: 11px; padding: 3px 8px">중앙도서관</span>
+  </header>
+
+  <div class="panel" style="position: relative; z-index: 1; flex: 1; min-height: 0; margin: 10px 10px 0; overflow-y: auto; padding: 14px 12px; display: flex; flex-direction: column; gap: 12px">
+    <div style="align-self: center; font-size: 11px; background: #E9D9B0; border: 2px solid #3A2617; padding: 2px 10px">2026년 10월 9일</div>
+    <sc-for list="{{msgs}}" as="m" hint-placeholder-count="3">
+      <sc-if value="{{m.bot}}" hint-placeholder-val="{{ true }}">
+        <div style="display: flex; gap: 8px; align-items: flex-start; max-width: 94%">
+          <div class="slot" style="width: 40px; height: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; overflow: hidden"><img src="../assets/kuming_head.png" alt="쿠밍이 챗봇" class="crisp" style="width: 36px; height: 36px"></div>
+          <div style="display: flex; flex-direction: column; gap: 3px">
+            <span style="font-size: 11px; font-weight: 700">쿠밍이 (AI 챗봇)</span>
+            <div style="background: #FFF7E2; border: 2px solid #3A2617; box-shadow: 2px 2px 0 rgba(58,38,23,.35); padding: 8px 10px; font-size: 14px; line-height: 1.55">{{m.text}}</div>
+            <span style="font-size: 11px; color: #6A4E36">{{m.time}}</span>
+          </div>
+        </div>
+      </sc-if>
+      <sc-if value="{{m.me}}" hint-placeholder-val="{{ false }}">
+        <div style="align-self: flex-end; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; max-width: 80%">
+          <div style="background: #8A5A33; color: #FFF3D6; border: 2px solid #3A2617; box-shadow: inset 0 2px 0 #B07A48, 2px 2px 0 rgba(58,38,23,.35); padding: 8px 10px; font-size: 14px; line-height: 1.55">{{m.text}}</div>
+          <span style="font-size: 11px; color: #6A4E36">{{m.time}}</span>
+        </div>
+      </sc-if>
+    </sc-for>
+
+    <div style="border: 3px solid #3A2617; background: #FFF7E2; display: flex; flex-direction: column">
+      <div class="plate" style="border: none; border-bottom: 3px solid #3A2617; padding: 6px 10px; display: flex; justify-content: space-between; align-items: center">
+        <span style="font-weight: 700; font-size: 14px">민원 접수서</span>
+        <span style="font-size: 11px">AI 분류: 시설팀 (92%)</span>
+      </div>
+      <div style="padding: 10px; display: flex; flex-direction: column; gap: 10px">
+        <button onClick="{{togglePhoto}}" aria-label="사진 첨부" class="slot" style="height: 92px; display: flex; align-items: center; justify-content: center; padding: 0; overflow: hidden; cursor: pointer">
+          <sc-if value="{{photo}}" hint-placeholder-val="{{ false }}">
+            <img src="../assets/deco_before.png" alt="첨부한 사진" class="crisp" style="width: 100%; height: 92px; object-fit: cover">
+          </sc-if>
+          <sc-if value="{{noPhoto}}" hint-placeholder-val="{{ true }}">
+            <span style="font-size: 14px; font-weight: 700; color: #6A4E36">+ 사진 넣기</span>
+          </sc-if>
+        </button>
+        <label style="display: flex; flex-direction: column; gap: 4px; font-size: 11px; font-weight: 700">불편사항
+          <textarea onChange="{{onBody}}" value="{{body}}" placeholder="불편사항을 입력해주세요." class="slot" style="height: 64px; resize: none; padding: 8px; font-family: inherit; font-size: 14px; line-height: 1.5; color: #3A2617"></textarea>
+        </label>
+        <div style="display: flex; justify-content: space-between; align-items: center">
+          <span style="font-size: 11px; color: {{byteColor}}">{{bytes}}/500byte</span>
+          <div style="display: flex; gap: 8px">
+            <button onClick="{{reset}}" class="btn3" style="height: 38px; padding: 0 12px; font-family: inherit; font-size: 14px">초기화</button>
+            <button onClick="{{submit}}" class="btn" style="height: 38px; padding: 0 14px; font-family: inherit; font-size: 14px; font-weight: 700">접수하기</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" style="position: relative; z-index: 2; flex-shrink: 0; margin: 10px; padding: 8px; display: flex; gap: 8px">
+    <label style="flex: 1; display: flex">
+      <span style="position: absolute; width: 1px; height: 1px; overflow: hidden">채팅 입력</span>
+      <input type="text" value="{{draft}}" onChange="{{onDraft}}" placeholder="채팅 입력하기" class="slot" style="flex: 1; height: 44px; box-sizing: border-box; padding: 0 10px; font-size: 14px; font-family: inherit; color: #3A2617">
+    </label>
+    <button onClick="{{send}}" class="btn" style="width: 64px; height: 44px; font-family: inherit; font-size: 14px; font-weight: 700">보내기</button>
+  </div>
+
+  <sc-if value="{{done}}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; z-index: 5; background: rgba(58,38,23,.6); display: flex; align-items: center; justify-content: center; padding: 18px">
+      <div role="dialog" aria-label="민원 접수 완료" class="panel" style="padding: 20px 18px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center">
+        <span class="plate" style="font-weight: 700; font-size: 16px; padding: 4px 14px">민원 접수 완료!</span>
+        <img src="../assets/mascot_pair.png" alt="쿠옹이와 쿠밍이" class="crisp bob" style="width: 150px; height: auto">
+        <p style="margin: 0; font-size: 14px; line-height: 1.65">민원 접수가 완료되었습니다! 관련 부서로 전달해 신속히 해결하기 위해 노력하겠습니다. 민원 해결 현황은 ‘나의 활동’을 통해 확인해주세요.</p>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; width: 100%">
+          <button onClick="{{close}}" class="btn3" style="height: 44px; font-family: inherit; font-size: 14px">닫기</button>
+          <a href="Activity.dc.html" class="btn" style="height: 44px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700">나의 활동 확인</a>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p) {
+    super(p);
+    this.initial = [
+      { bot: true, text: '안녕하세요. 어떤 점이 불편하신가요?', time: '10:32 읽음' },
+      { me: true, text: '도서관 정문에서 나와 오른쪽 두 번째 벤치가 부서져 있어요.', time: '10:33' },
+      { bot: true, text: '확인했습니다. 시설 관련 민원으로 분류했어요. 사진이 있다면 첨부 후 접수해주세요.', time: '10:34 전송됨' }
+    ];
+    this.state = { msgs: this.initial, draft: '', body: '도서관 정문에서 나와 오른쪽 두 번째 벤치가 부서져 있어요. 앉으면 위험해 보입니다.', photo: false, done: false };
+  }
+  renderVals() {
+    const bytes = new TextEncoder().encode(this.state.body).length;
+    const now = () => { const d = new Date(); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
+    return {
+      msgs: this.state.msgs, draft: this.state.draft, body: this.state.body,
+      photo: this.state.photo, noPhoto: !this.state.photo, done: this.state.done,
+      bytes, byteColor: bytes > 500 ? '#B23A2E' : '#6A4E36',
+      onDraft: (e) => this.setState({ draft: e.target.value }),
+      onBody: (e) => this.setState({ body: e.target.value }),
+      togglePhoto: () => this.setState({ photo: !this.state.photo }),
+      send: () => {
+        const t = this.state.draft.trim(); if (!t) return;
+        this.setState({ msgs: this.state.msgs.concat([{ me: true, text: t, time: now() }]), draft: '', body: (this.state.body + ' ' + t).trim() });
+        setTimeout(() => this.setState({ msgs: this.state.msgs.concat([{ bot: true, text: '내용을 접수서에 추가했어요. 확인 후 접수하기를 눌러주세요.', time: now() + ' 전송됨' }]) }), 700);
+      },
+      reset: () => this.setState({ msgs: this.initial, body: '', photo: false }),
+      submit: () => this.setState({ done: true }),
+      close: () => this.setState({ done: false })
+    };
+  }
+}
+</script>
+</body>
+</html>

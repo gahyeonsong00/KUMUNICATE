@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>경희대 키우기 나의 활동</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@font-face{font-family:'Galmuri11';src:url(../assets/fonts/Galmuri11.woff2) format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Galmuri11';src:url(../assets/fonts/Galmuri11-Bold.woff2) format('woff2');font-weight:700;font-display:swap}
+body{margin:0}
+a{color:#7E2219}a:hover{color:#5E1A13}
+*{-webkit-font-smoothing:none}
+.crisp{image-rendering:pixelated}
+.panel{background:#F6EBCF;border:3px solid #3A2617;box-shadow:inset 0 0 0 2px #FFF7E2,inset 0 0 0 4px #D9C08E,4px 4px 0 rgba(58,38,23,.45)}
+.plate{background:#8A5A33;color:#FFF3D6;border:3px solid #3A2617;box-shadow:inset 0 2px 0 #B07A48,inset 0 -3px 0 #5E3B20}
+.btn{background:#B23A2E;color:#FFF6E6;border:3px solid #3A2617;box-shadow:inset 0 3px 0 #D9644F,inset 0 -4px 0 #7E2219,3px 3px 0 rgba(58,38,23,.45);cursor:pointer;text-decoration:none}
+.btn2{background:#6E9A34;color:#FFFBEA;border:3px solid #3A2617;box-shadow:inset 0 3px 0 #94BF4E,inset 0 -4px 0 #4A6D20,3px 3px 0 rgba(58,38,23,.45);cursor:pointer;text-decoration:none}
+.btn3{background:#EAD9AE;color:#3A2617;border:3px solid #3A2617;box-shadow:inset 0 3px 0 #FFF4D2,inset 0 -4px 0 #C2A66C,3px 3px 0 rgba(58,38,23,.45);cursor:pointer;text-decoration:none}
+.btn:active,.btn2:active,.btn3:active{transform:translateY(2px);box-shadow:inset 0 2px 0 rgba(0,0,0,.15)}
+.slot{background:#E9D9B0;border:3px solid #3A2617;box-shadow:inset 3px 3px 0 #C9AF77}
+input:focus,textarea:focus{outline:3px solid #E8B64A;outline-offset:0}
+@media (prefers-reduced-motion: no-preference){
+.bob{animation:bob 1.2s steps(2) infinite}
+@keyframes bob{50%{transform:translateY(-3px)}}
+.walk{transition:left .6s steps(6),top .6s steps(6)}
+.bar{width:0;animation:fill 1.6s steps(8) forwards}
+@keyframes fill{to{width:100%}}
+}
+@media (prefers-reduced-motion: reduce){.bar{width:100%}}
+</style>
+</helmet>
+
+<div style="width: 390px; height: 844px; display: flex; flex-direction: column; position: relative; overflow: hidden; font-family: 'Galmuri11', monospace; color: #3A2617; background: #6F8F2C">
+  <img src="../assets/campus_map.jpg" alt="" class="crisp" style="position: absolute; left: -330px; top: -560px; width: 800px; height: 1000px">
+  <div style="position: absolute; inset: 0; background: rgba(58,38,23,.35)"></div>
+
+  <header class="panel" style="position: relative; z-index: 2; margin: 10px 10px 0; height: 56px; box-sizing: border-box; display: flex; align-items: center; gap: 8px; padding: 0 8px">
+    <a href="Main.dc.html" aria-label="지도로 돌아가기" class="btn3" style="width: 40px; height: 40px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; padding: 0">
+      <svg width="18" height="18" viewBox="0 0 10 10" shape-rendering="crispEdges" fill="#3A2617"><rect x="5" y="1" width="1" height="1"></rect><rect x="4" y="2" width="1" height="1"></rect><rect x="3" y="3" width="1" height="1"></rect><rect x="2" y="4" width="6" height="2"></rect><rect x="3" y="6" width="1" height="1"></rect><rect x="4" y="7" width="1" height="1"></rect><rect x="5" y="8" width="1" height="1"></rect></svg>
+    </a>
+    <span style="font-weight: 700; font-size: 16px">나의 활동</span>
+  </header>
+
+  <div class="plate" style="position: relative; z-index: 1; margin: 10px 10px 0; padding: 10px; display: flex; gap: 10px; align-items: center">
+    <div class="slot" style="width: 84px; height: 72px; flex-shrink: 0; display: flex; align-items: flex-end; justify-content: center; overflow: hidden; background: #A9C66A">
+      <img src="../assets/mascot_pair.png" alt="쿠옹이와 쿠밍이" class="crisp bob" style="width: 78px; height: auto">
+    </div>
+    <div style="flex: 1; display: flex; flex-direction: column; gap: 6px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline">
+        <span style="font-weight: 700; font-size: 16px; color: #FFE8A8">캠퍼스 성장 Lv.3</span>
+        <span style="font-size: 11px">6/10</span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 2px; border: 2px solid #3A2617; padding: 2px; background: #3A2617">
+        <sc-for list="{{gauge}}" as="g" hint-placeholder-count="10"><span style="height: 10px; background: {{g.c}}"></span></sc-for>
+      </div>
+      <span style="font-size: 11px; color: #F3E3C0">민원이 해결될 때마다 캠퍼스가 한 칸씩 자라요</span>
+    </div>
+  </div>
+
+  <sc-if value="{{listView}}" hint-placeholder-val="{{ true }}">
+    <div role="tablist" aria-label="민원 상태" style="position: relative; z-index: 1; margin: 12px 10px 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+      <sc-for list="{{tabs}}" as="t" hint-placeholder-count="3">
+        <button role="tab" aria-selected="{{t.on}}" onClick="{{t.pick}}" class="{{t.cls}}" style="height: 42px; font-family: inherit; font-size: 14px; font-weight: 700">{{t.label}}</button>
+      </sc-for>
+    </div>
+    <div style="position: relative; z-index: 1; flex: 1; overflow-y: auto; padding: 12px 10px; display: flex; flex-direction: column; gap: 12px">
+      <sc-for list="{{items}}" as="it" hint-placeholder-count="1">
+        <div class="panel" style="padding: 14px; display: flex; flex-direction: column; gap: 8px">
+          <div style="display: flex; justify-content: space-between; align-items: center">
+            <span style="font-size: 11px; font-weight: 700; color: #FFF6E6; background: {{it.color}}; padding: 3px 8px; border: 2px solid #3A2617">{{it.status}}</span>
+            <span style="font-size: 11px; color: #6A4E36">{{it.dept}}</span>
+          </div>
+          <div style="font-weight: 700; font-size: 16px">{{it.title}}</div>
+          <p style="margin: 0; font-size: 14px; line-height: 1.55">{{it.body}}</p>
+          <div style="font-size: 11px; color: #6A4E36">{{it.where}}, 접수일시 {{it.date}}</div>
+          <sc-if value="{{it.chat}}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{openChat}}" class="btn" style="height: 42px; font-family: inherit; font-size: 14px; font-weight: 700">시설 담당자로부터 채팅이 왔어요!</button>
+          </sc-if>
+          <sc-if value="{{it.solved}}" hint-placeholder-val="{{ false }}">
+            <div style="background: #5E8C32; color: #FFFBEA; padding: 10px; display: flex; gap: 10px; align-items: center; border: 2px solid #3A2617; box-shadow: inset 0 2px 0 #86B452">
+              <span style="font-weight: 700; font-size: 14px; color: #FFE8A8">+1</span>
+              <span style="font-size: 14px; line-height: 1.5">소중한 민원 수리되었습니다. 경희대를 키워주셔서 감사합니다!</span>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+      <sc-if value="{{empty}}" hint-placeholder-val="{{ false }}">
+        <div class="panel" style="padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 10px; font-size: 14px">
+          <img src="../assets/kuming_head.png" alt="" class="crisp" style="width: 64px; height: 64px">
+          아직 접수한 민원이 없습니다.
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{chatView}}" hint-placeholder-val="{{ false }}">
+    <div style="position: relative; z-index: 1; margin: 12px 10px 0; display: flex; align-items: center; gap: 8px">
+      <button onClick="{{closeChat}}" aria-label="목록으로" class="btn3" style="width: 40px; height: 40px; padding: 0; font-family: inherit; font-weight: 700; font-size: 16px">‹</button>
+      <span class="plate" style="font-weight: 700; font-size: 14px; padding: 4px 10px">시설 담당자와의 대화</span>
+    </div>
+    <div class="panel" style="position: relative; z-index: 1; flex: 1; min-height: 0; margin: 10px 10px 0; overflow-y: auto; padding: 14px 12px; display: flex; flex-direction: column; gap: 12px">
+      <div style="font-size: 11px; line-height: 1.6; background: #E9D9B0; border: 2px solid #3A2617; padding: 6px 8px">도서관 정문 벤치 파손<br>접수일시 2026.10.01 23:06</div>
+      <sc-for list="{{talk}}" as="m" hint-placeholder-count="3">
+        <div style="display: flex; flex-direction: column; align-items: {{m.align}}; gap: 3px">
+          <span style="font-size: 11px; font-weight: 700">{{m.who}}</span>
+          <div style="max-width: 82%; background: {{m.bg}}; color: {{m.fg}}; border: 2px solid #3A2617; box-shadow: 2px 2px 0 rgba(58,38,23,.35); padding: 8px 10px; font-size: 14px; line-height: 1.55">{{m.text}}</div>
+        </div>
+      </sc-for>
+      <button style="align-self: flex-end; border: none; background: transparent; font-family: inherit; font-size: 11px; text-decoration: underline; color: #6A4E36; min-height: 32px; cursor: pointer">보낸 메시지 수정</button>
+    </div>
+    <div class="panel" style="position: relative; z-index: 1; margin: 10px; padding: 8px; display: flex; gap: 8px">
+      <label style="flex: 1; display: flex"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden">답장 입력</span>
+        <input type="text" value="{{draft}}" onChange="{{onDraft}}" placeholder="채팅 입력하기" class="slot" style="flex: 1; height: 44px; box-sizing: border-box; padding: 0 10px; font-family: inherit; font-size: 14px; color: #3A2617">
+      </label>
+      <button onClick="{{send}}" class="btn" style="width: 64px; height: 44px; font-family: inherit; font-size: 14px; font-weight: 700">전송</button>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p) {
+    super(p);
+    this.state = { tab: 'progress', chat: false, draft: '', talk: [
+      { who: '시설 담당자', text: '안녕하세요. 도서관 정문 기준 어느 쪽 벤치인지 알려주시겠어요?', staff: true },
+      { who: '민원인', text: '정문에서 나와 오른쪽 두 번째 벤치예요.' },
+      { who: '시설 담당자', text: '확인했습니다. 오늘 현장 확인 후 안내드리겠습니다.', staff: true }
+    ] };
+  }
+  renderVals() {
+    const data = {
+      received: [{ status: '접수 완료', color: '#3F6370', dept: 'AI 분류: 장학 담당', title: '성적장학금 규정 문의', body: '성적장학금 규정이 궁금해요. 챗봇이 답하지 못해 담당 부서로 연결되었어요.', where: '채팅 문의', date: '2026.09.30 10:33' }],
+      progress: [{ status: '해결 중', color: '#8C5E1C', dept: 'AI 분류: 시설팀', title: '도서관 정문 벤치 파손', body: '도서관 정문에서 나와 오른쪽 두 번째 벤치가 부서져 있어요. 앉으면 위험해 보입니다.', where: '중앙도서관 정문', date: '2026.10.01 23:06', chat: true }],
+      done: [{ status: '해결 완료', color: '#4F7A2A', dept: 'AI 분류: 시설팀', title: '체육관 핸드드라이어 고장', body: '2층 화장실 핸드드라이어가 작동하지 않아요.', where: '체육관 2층', date: '2026.09.24 14:12', solved: true }]
+    };
+    const tabs = [['received', '접수 완료'], ['progress', '해결 중'], ['done', '해결 완료']].map(([k, label]) => ({
+      label, on: this.state.tab === k, cls: this.state.tab === k ? 'btn' : 'btn3', pick: () => this.setState({ tab: k })
+    }));
+    const items = data[this.state.tab];
+    return {
+      tabs, items, empty: items.length === 0,
+      gauge: Array.from({ length: 10 }, (_, i) => ({ c: i < 6 ? '#8DBF3E' : '#5E4A36' })),
+      listView: !this.state.chat, chatView: this.state.chat,
+      openChat: () => this.setState({ chat: true }), closeChat: () => this.setState({ chat: false }),
+      talk: this.state.talk.map((m) => ({ ...m, align: m.staff ? 'flex-start' : 'flex-end', bg: m.staff ? '#FFF7E2' : '#8A5A33', fg: m.staff ? '#3A2617' : '#FFF3D6' })),
+      draft: this.state.draft,
+      onDraft: (e) => this.setState({ draft: e.target.value }),
+      send: () => { const t = this.state.draft.trim(); if (!t) return; this.setState({ talk: this.state.talk.concat([{ who: '민원인', text: t }]), draft: '' }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

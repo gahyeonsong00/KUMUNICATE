@@ -1,0 +1,7 @@
+{
+  "name": "khu-grow-rls-check",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node rls-check.mjs" },
+  "devDependencies": { "@electric-sql/pglite": "0.2.17" }
+}

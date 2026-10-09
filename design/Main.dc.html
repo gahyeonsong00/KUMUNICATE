@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>경희대 키우기 캠퍼스 지도</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@font-face{font-family:'Galmuri11';src:url(../assets/fonts/Galmuri11.woff2) format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Galmuri11';src:url(../assets/fonts/Galmuri11-Bold.woff2) format('woff2');font-weight:700;font-display:swap}
+body{margin:0}
+a{color:#7E2219}a:hover{color:#5E1A13}
+*{-webkit-font-smoothing:none}
+.crisp{image-rendering:pixelated}
+.panel{background:#F6EBCF;border:3px solid #3A2617;box-shadow:inset 0 0 0 2px #FFF7E2,inset 0 0 0 4px #D9C08E,4px 4px 0 rgba(58,38,23,.45)}
+.plate{background:#8A5A33;color:#FFF3D6;border:3px solid #3A2617;box-shadow:inset 0 2px 0 #B07A48,inset 0 -3px 0 #5E3B20}
+.btn{background:#B23A2E;color:#FFF6E6;border:3px solid #3A2617;box-shadow:inset 0 3px 0 #D9644F,inset 0 -4px 0 #7E2219,3px 3px 0 rgba(58,38,23,.45);cursor:pointer;text-decoration:none}
+.btn2{background:#6E9A34;color:#FFFBEA;border:3px solid #3A2617;box-shadow:inset 0 3px 0 #94BF4E,inset 0 -4px 0 #4A6D20,3px 3px 0 rgba(58,38,23,.45);cursor:pointer;text-decoration:none}
+.btn3{background:#EAD9AE;color:#3A2617;border:3px solid #3A2617;box-shadow:inset 0 3px 0 #FFF4D2,inset 0 -4px 0 #C2A66C,3px 3px 0 rgba(58,38,23,.45);cursor:pointer;text-decoration:none}
+.btn:active,.btn2:active,.btn3:active{transform:translateY(2px);box-shadow:inset 0 2px 0 rgba(0,0,0,.15)}
+.slot{background:#E9D9B0;border:3px solid #3A2617;box-shadow:inset 3px 3px 0 #C9AF77}
+input:focus,textarea:focus{outline:3px solid #E8B64A;outline-offset:0}
+@media (prefers-reduced-motion: no-preference){
+.bob{animation:bob 1.2s steps(2) infinite}
+@keyframes bob{50%{transform:translateY(-3px)}}
+.walk{transition:left .6s steps(6),top .6s steps(6)}
+.bar{width:0;animation:fill 1.6s steps(8) forwards}
+@keyframes fill{to{width:100%}}
+}
+@media (prefers-reduced-motion: reduce){.bar{width:100%}}
+</style>
+</helmet>
+
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #6F8F2C; font-family: 'Galmuri11', monospace; color: #3A2617">
+  <div ref="{{setScroller}}" style="position: absolute; inset: 0; overflow: auto; scrollbar-width: none">
+    <div style="position: relative; width: 800px; height: 1000px">
+      <img src="../assets/campus_map.jpg" alt="픽셀아트 캠퍼스 지도" class="crisp" style="position: absolute; inset: 0; width: 800px; height: 1000px">
+      <sc-if value="{{deco}}" hint-placeholder-val="{{ true }}">
+        <div style="position: absolute; left: 470px; top: 520px; pointer-events: none">
+          <svg width="40" height="18" viewBox="0 0 20 9" shape-rendering="crispEdges"><rect x="0" y="0" width="8" height="2" fill="#965C34"></rect><rect x="0" y="2" width="8" height="1" fill="#603A22"></rect><rect x="0" y="3" width="1" height="2" fill="#603A22"></rect><rect x="7" y="3" width="1" height="2" fill="#603A22"></rect><rect x="12" y="0" width="8" height="2" fill="#965C34"></rect><rect x="12" y="2" width="8" height="1" fill="#603A22"></rect><rect x="12" y="3" width="1" height="2" fill="#603A22"></rect><rect x="19" y="3" width="1" height="2" fill="#603A22"></rect><rect x="9" y="5" width="2" height="1" fill="#E896AA"></rect><rect x="8" y="6" width="4" height="2" fill="#5C8C30"></rect><rect x="8" y="8" width="4" height="1" fill="#786E64"></rect></svg>
+        </div>
+      </sc-if>
+      <sc-for list="{{spots}}" as="s" hint-placeholder-count="15">
+        <button onClick="{{s.pick}}" aria-label="{{s.aria}}" style="position: absolute; left: {{s.left}}; top: {{s.top}}; transform: translate(-50%, -50%); height: 24px; padding: 0 6px; display: flex; align-items: center; gap: 4px; border: 2px solid #3A2617; background: {{s.bg}}; color: {{s.fg}}; font-family: 'Galmuri11', monospace; font-size: 11px; white-space: nowrap; box-shadow: inset 0 2px 0 {{s.hi}}, 2px 2px 0 rgba(58,38,23,.5); cursor: pointer">{{s.name}}</button>
+      </sc-for>
+      <sc-for list="{{quests}}" as="q" hint-placeholder-count="3">
+        <div style="position: absolute; left: {{q.left}}; top: {{q.top}}; transform: translate(-50%, -100%); pointer-events: none">
+          <svg class="bob" width="22" height="26" viewBox="0 0 11 13" shape-rendering="crispEdges"><rect x="1" y="0" width="9" height="9" fill="#3A2617"></rect><rect x="2" y="1" width="7" height="7" fill="{{q.color}}"></rect><rect x="2" y="1" width="7" height="1" fill="{{q.hi}}"></rect><rect x="4" y="9" width="3" height="1" fill="#3A2617"></rect><rect x="5" y="10" width="1" height="2" fill="#3A2617"></rect><rect x="5" y="2" width="1" height="3" fill="#FFF6E6"></rect><rect x="5" y="6" width="1" height="1" fill="#FFF6E6"></rect></svg>
+        </div>
+      </sc-for>
+      <div class="walk" style="position: absolute; left: {{player.left}}; top: {{player.top}}; transform: translate(-50%, -100%); pointer-events: none">
+        <img src="../assets/kuong.png" alt="쿠옹이" class="crisp bob" style="display: block; width: 44px; height: auto">
+      </div>
+    </div>
+  </div>
+
+  <header class="panel" style="position: absolute; left: 10px; right: 10px; top: 10px; height: 60px; box-sizing: border-box; display: flex; align-items: center; gap: 8px; padding: 0 8px; z-index: 3">
+    <a href="Login.dc.html" aria-label="로그아웃" class="slot" style="width: 44px; height: 44px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 0">
+      <img src="../assets/kuong_head.png" alt="" class="crisp" style="width: 38px; height: 38px">
+    </a>
+    <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline">
+        <span style="font-weight: 700; font-size: 16px; color: #7E2219">경희대 키우기</span>
+        <span style="font-size: 11px">Lv.3 캠퍼스</span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 2px; border: 2px solid #3A2617; padding: 2px; background: #3A2617">
+        <sc-for list="{{xp}}" as="x" hint-placeholder-count="10"><span style="height: 6px; background: {{x.c}}"></span></sc-for>
+      </div>
+    </div>
+    <a href="Activity.dc.html" aria-label="알림 3건, 나의 활동" class="btn3" style="width: 44px; height: 44px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; position: relative; padding: 0">
+      <svg width="22" height="22" viewBox="0 0 11 11" shape-rendering="crispEdges" fill="#3A2617"><rect x="5" y="0" width="1" height="1"></rect><rect x="3" y="1" width="5" height="1"></rect><rect x="2" y="2" width="1" height="5"></rect><rect x="8" y="2" width="1" height="5"></rect><rect x="3" y="2" width="5" height="5" fill="#E8B64A"></rect><rect x="1" y="7" width="9" height="1"></rect><rect x="4" y="9" width="3" height="1"></rect></svg>
+      <span style="position: absolute; top: -8px; right: -8px; min-width: 20px; height: 20px; box-sizing: border-box; border: 2px solid #3A2617; background: #B23A2E; color: #FFF6E6; font-size: 11px; display: flex; align-items: center; justify-content: center">3</span>
+    </a>
+  </header>
+
+  <div style="position: absolute; right: 10px; top: 84px; z-index: 3; display: flex; flex-direction: column; align-items: flex-end; gap: 8px">
+    <div class="panel" style="padding: 6px 8px; display: flex; align-items: center; gap: 8px">
+      <span style="font-size: 11px; font-weight: 700">꾸미기</span>
+      <button onClick="{{toggleDeco}}" aria-label="꾸미기 보기 켜기 끄기" aria-pressed="{{deco}}" style="width: 44px; height: 22px; border: 2px solid #3A2617; background: {{toggleBg}}; position: relative; padding: 0; cursor: pointer">
+        <span style="position: absolute; top: 2px; left: {{knobLeft}}; width: 14px; height: 14px; background: #FFF7E2; border: 2px solid #3A2617; box-sizing: border-box"></span>
+      </button>
+    </div>
+    <div class="panel" style="padding: 6px 8px; display: flex; flex-direction: column; gap: 4px; font-size: 11px">
+      <span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; background: #3F6370; border: 2px solid #3A2617"></span>접수</span>
+      <span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; background: #C08A2A; border: 2px solid #3A2617"></span>해결 중</span>
+      <span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; background: #5E8C32; border: 2px solid #3A2617"></span>해결</span>
+    </div>
+  </div>
+
+  <div style="position: absolute; left: 10px; right: 10px; bottom: 12px; z-index: 3; display: flex; flex-direction: column; gap: 8px">
+    <div class="panel" style="display: flex; gap: 10px; padding: 12px; align-items: flex-start">
+      <div class="slot" style="width: 64px; height: 64px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; overflow: hidden">
+        <img src="../assets/kuming_head.png" alt="쿠밍이" class="crisp" style="width: 58px; height: 58px">
+      </div>
+      <div style="flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0">
+        <span class="plate" style="align-self: flex-start; font-size: 11px; padding: 2px 8px">{{talker}}</span>
+        <p style="margin: 0; font-size: 14px; line-height: 1.55">{{line}}</p>
+        <sc-if value="{{hasSel}}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; gap: 8px">
+            <a href="Chat.dc.html" class="btn" style="flex: 1; height: 40px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700">이 장소로 민원 접수</a>
+            <button onClick="{{clearSel}}" class="btn3" style="height: 40px; padding: 0 12px; font-family: inherit; font-size: 14px">닫기</button>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+    <nav aria-label="메뉴" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+      <a href="Chat.dc.html" class="btn" style="height: 48px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700">민원 접수</a>
+      <a href="Activity.dc.html" class="btn3" style="height: 48px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700">나의 활동</a>
+      <a href="Decorate.dc.html" class="btn2" style="height: 48px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700">꾸미기</a>
+    </nav>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { sel: null, deco: true }; }
+  renderVals() {
+    const S = 800 / 1122;
+    const raw = [[1,'정문',580,80],[2,'기숙사',170,110],[3,'체육관',475,320],[4,'테니스장',370,340],[5,'운동장',190,375],[6,'원형 경기장',435,465],[7,'연구동',830,430],[8,'중앙도서관',390,640],[9,'광장',690,690],[10,'야외극장',640,880],[11,'연못',500,960],[12,'천문대',370,1050],[13,'야구장',820,960],[14,'축구장',990,1040],[15,'보조경기장',990,1215]];
+    const status = { 8: ['#C08A2A', '#E2B25A', '해결 중인 민원이 1건 있어요. 시설팀이 처리하고 있어요.'], 9: ['#3F6370', '#6A8E9A', '접수된 민원이 1건 있어요. 부서 배정을 기다리는 중이에요.'], 3: ['#5E8C32', '#86B452', '최근 민원 1건이 해결됐어요. 캠퍼스가 한 칸 자랐어요!'] };
+    const sel = this.state.sel;
+    const px = (v) => Math.round(v * S) + 'px';
+    const spots = raw.map(([id, name, x, y]) => {
+      const on = sel === id;
+      return { id, name, left: px(x), top: px(y + 34), bg: on ? '#B23A2E' : '#F6EBCF', fg: on ? '#FFF6E6' : '#3A2617', hi: on ? '#D9644F' : '#FFF7E2', aria: name + ' 선택', pick: () => this.setState({ sel: id }) };
+    });
+    const quests = Object.keys(status).map((k) => { const r = raw.find((b) => b[0] === +k); return { color: status[k][0], hi: status[k][1], left: px(r[2]), top: px(r[3] + 14) }; });
+    const cur = raw.find((b) => b[0] === (sel || 1));
+    const selRow = sel ? raw.find((b) => b[0] === sel) : null;
+    return {
+      spots, quests, deco: this.state.deco, hasSel: !!sel,
+      player: { left: px(cur[2] + 40), top: px(cur[3] + 20) },
+      talker: sel ? '쿠밍이' : '쿠밍이 가이드',
+      line: sel ? (selRow[1] + '에 도착했어요. ' + (status[sel] ? status[sel][2] : '아직 접수된 민원이 없어요. 불편한 점이 있다면 알려주세요!')) : '어디가 불편했나요? 지도에서 장소를 눌러주면 쿠옹이가 그곳으로 갈게요.',
+      xp: Array.from({ length: 10 }, (_, i) => ({ c: i < 6 ? '#8DBF3E' : '#5E4A36' })),
+      toggleBg: this.state.deco ? '#6E9A34' : '#B9A98A', knobLeft: this.state.deco ? '24px' : '2px',
+      toggleDeco: () => this.setState({ deco: !this.state.deco }),
+      clearSel: () => this.setState({ sel: null }),
+      setScroller: (el) => { if (el && !this._scrolled) { this._scrolled = true; el.scrollLeft = 200; el.scrollTop = 250; } }
+    };
+  }
+}
+</script>
+</body>
+</html>
