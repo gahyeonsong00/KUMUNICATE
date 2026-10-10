@@ -156,6 +156,9 @@ function Detail({ c, userId, toast, onChanged }: { c: Complaint; userId: string;
   const chats = msgs.filter((m) => m.kind === 'chat')
   const letters = msgs.filter((m) => m.kind === 'letter')
   const dept = c.dept?.name ?? '담당자'
+  // 해결 중에는 담당자가 먼저 채팅을 보낸 뒤에만 민원인이 답할 수 있다 (담당자 업무 보호)
+  // 재접수된 민원은 재접수 뒤에 담당자가 다시 보낸 채팅이 있어야 한다
+  const staffStarted = chats.some((m) => m.sender_id !== userId && (!c.reopened_at || m.created_at >= c.reopened_at))
 
   return (
     <div className="detail">
@@ -186,13 +189,12 @@ function Detail({ c, userId, toast, onChanged }: { c: Complaint; userId: string;
         </>
       )}
 
-      {c.status === 'in_progress' && (
-        <>
-          {chats.length === 0 && <div>{dept} 담당자가 확인하고 있어요. 더 알릴 내용이 있으면 남겨 주세요.</div>}
-          <ReplyForm placeholder="담당자에게 메시지 보내기" button="보내기" toast={toast}
-            onSend={(t) => sendMessage(c.id, t)} />
-        </>
-      )}
+      {c.status === 'in_progress' && (staffStarted ? (
+        <ReplyForm placeholder="담당자에게 답장하기" button="보내기" toast={toast}
+          onSend={(t) => sendMessage(c.id, t)} />
+      ) : (
+        <div>{dept} 담당자가 처리하고 있어요. 확인할 내용이 있으면 담당자가 먼저 채팅을 보내요.</div>
+      ))}
 
       {c.status === 'resolved' && (
         <>
