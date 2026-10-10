@@ -123,7 +123,7 @@ function ComplaintCard({ c, userId, toast, open, seen, onToggle, onChanged }: Ca
         <div className="cTop">
           <span className={`dot${seen ? ' read' : ''}`} />
           <span className="sub">{placeLabel(c)}</span>
-          {c.reopened_at && <span className="badge">재문의</span>}
+          {c.reopened_at && <span className="badge">재접수</span>}
         </div>
         <div className="cText">{open ? c.content : preview(c.content)}</div>
         <div className="cFoot sub"><span>접수일시: {formatDateTime(c.created_at)}</span><span>{open ? '△' : '▽'}</span></div>
@@ -252,13 +252,13 @@ function Reopen({ c, toast, onChanged }: { c: Complaint; toast: Toast; onChanged
   const [opening, setOpening] = useState(false)
   const [now] = useState(() => Date.now())
   const left = c.resolved_at ? REOPEN_DAYS * 864e5 - (now - new Date(c.resolved_at).getTime()) : 0
-  if (left <= 0) return <span className="sub">처리 완료 후 7일이 지나 재문의할 수 없어요. 새 민원으로 접수해 주세요.</span>
-  if (!opening) return <button className="btn3 actBtn" type="button" onClick={() => setOpening(true)}>결과가 아쉬워요 (재문의)</button>
+  if (left <= 0) return <span className="sub">처리 완료 후 7일이 지나 재접수할 수 없어요. 새 민원으로 접수해 주세요.</span>
+  if (!opening) return <button className="btn3 actBtn" type="button" onClick={() => setOpening(true)}>재접수</button>
   return (
-    <ReplyForm placeholder="무엇이 아직 불편한가요?" button="재문의" toast={toast}
+    <ReplyForm placeholder="무엇이 아직 불편한가요?" button="재접수" toast={toast}
       onSend={async (t) => {
         await reopenComplaint(c.id, t)
-        toast('재문의했어요. 같은 담당자에게 다시 전달돼요')
+        toast('재접수했어요. 같은 담당자에게 다시 전달돼요')
         onChanged()
       }} />
   )
