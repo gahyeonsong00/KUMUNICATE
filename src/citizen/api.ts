@@ -3,8 +3,8 @@
 // 화면 코드는 이 파일의 함수만 부른다. 서버 사용법은 supabase/README.md
 //
 // 아직 가짜인 것
-//   - generateImage: 꾸미기 이미지 생성 (승원 담당). 지금은 샘플 그림을 돌려준다
 //   - askComplaintAI: complaint-chat 함수가 배포되지 않았으면 안내 문구로 대신한다
+// 꾸미기(승원)는 supabase/functions/decorate 와 decorate_requests 테이블을 쓴다. 맨 아래 "꾸미기" 부분
 // =====================================================================
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
@@ -205,17 +205,103 @@ export async function askComplaintAI(messages: ChatTurn[]): Promise<{ reply: str
   return { reply: '지금은 AI 답변을 만들 수 없어요. 말씀하신 내용을 그대로 접수할 수 있어요.', draft: said || null }
 }
 
-// TODO(승원): 꾸미기 이미지 생성. 진짜 AI로 바꾸면 이 함수 안쪽만 바꾸면 된다
-export async function generateImage(_prompt: string, _place: string): Promise<string> {
-  await new Promise((r) => setTimeout(r, 2000))
-  return new URL('../../assets/deco_after.png', import.meta.url).href
+// ---------------------------------------------------------------------
+// 꾸미기 (승원). 서버: supabase/functions/decorate, 설계: docs/decorate-mode-ai.md
+// "내 지도" = 원본 지도 + 내가 저장한 꾸미기 조각들. 새 꾸미기는 내 지도에서 잘라 그리고, 지울 때는 최신 것부터만
+// 좌표: 서버는 지도 픽셀(assets/map_final.png 6028×4176), 화면은 지도 판 0~1 비율
+// ---------------------------------------------------------------------
+export const DECO_MAP = { w: 6028, h: 4176 }
+export type DecoBounds = { x: number; y: number; size: number }
+// 꾸미기 창 하나 = 세션 하나. "수정하기"는 같은 세션으로 이어서 보내면 서버가 앞선 요청과 합쳐 다시 그린다
+export type DecoSession = { id: string; previousIds: string[] }
+export type DecoResult = { requestId: string; reply: string; beforeUrl: string; afterUrl: string; bounds: DecoBounds }
+export type DecoRecord = {
+  id: string
+  title: string
+  placeName: string
+  buildingId: string | null
+  date: string
+  afterUrl: string
+  beforeUrl: string
+  bounds: DecoBounds
+  sent: boolean // 의견 전달하기로 학교에 보냈는지
+}
+
+const DECO_BUCKET = 'decorate-results'
+const DECO_TIMEOUT_MS = 40_000 // 서버 30초 + 여유
+const decoUrl = (path: string | null) => (path ? supabase.storage.from(DECO_BUCKET).getPublicUrl(path).data.publicUrl : '')
+
+export const newDecoSession = (): DecoSession => ({ id: crypto.randomUUID(), previousIds: [] })
+
+// 핀 자리(지도 판 0~1 비율)를 꾸민다. 그림이 아닌 답(질문, 민원 안내, 거절, 하루 한도, 크레딧 부족)은
+// 쿠밍이 문장을 담은 오류로 던진다 → 화면은 그 문장을 안내로 띄우면 된다
+export async function generateImage(session: DecoSession, message: string, pin: { x: number; y: number }): Promise<DecoResult> {
+  const call = supabase.functions.invoke('decorate', {
+    body: {
+      session_id: session.id, message, previous_ids: session.previousIds,
+      map_x: Math.round(pin.x * DECO_MAP.w), map_y: Math.round(pin.y * DECO_MAP.h),
+    },
+  }).then(async ({ data, error }) => {
+    if (!error) return data
+    try { return await (error as { context?: Response }).context?.json() } catch { return null }
+  })
+  const timeout = new Promise<null>((r) => setTimeout(() => r(null), DECO_TIMEOUT_MS))
+  const res = await Promise.race([call, timeout])
+  if (!res) throw new Error('시간이 너무 오래 걸렸어요. 다시 시도해 주세요')
+  if (res.type === 'edit' || res.type === 'question') session.previousIds.push(res.request_id)
+  if (res.type !== 'edit') throw new Error(res.reply ?? res.error ?? '꾸미기에 실패했어요. 다시 시도해 주세요')
+  return { requestId: res.request_id, reply: res.reply, beforeUrl: res.before_url, afterUrl: res.after_url, bounds: res.bounds }
+}
+
+// 내 꾸미기 (저장한 것, 지운 것 제외). 최신이 맨 앞
+export async function loadDecorations(): Promise<DecoRecord[]> {
+  const { data, error } = await supabase
+    .from('decorate_requests')
+    .select('id, message, claude_json, place_name, building_id, result_path, before_path, crop_x, crop_y, crop_size, saved_at, status')
+    .eq('map_id', 'final').not('saved_at', 'is', null).is('hidden_at', null)
+    .order('saved_at', { ascending: false })
+  if (error) throw error
+  return (data ?? []).map((r) => ({
+    id: r.id,
+    title: r.claude_json?.change || r.message,
+    placeName: r.place_name,
+    buildingId: r.building_id,
+    date: new Date(r.saved_at).toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' }).replace(/-/g, '.'),
+    afterUrl: decoUrl(r.result_path),
+    beforeUrl: decoUrl(r.before_path),
+    bounds: { x: r.crop_x, y: r.crop_y, size: r.crop_size },
+    sent: r.status === 'proposed',
+  }))
+}
+
+async function decoRpc(name: string, args: Record<string, unknown>) {
+  const { error } = await supabase.rpc(name, args)
+  if (error) throw new Error(error.message)
+}
+export const saveDecoration = (id: string) => decoRpc('decorate_save', { request_id: id })
+// 서버가 "최신 것만" 지운다. 아니면 '최근 꾸미기부터 지울 수 있어요' 오류
+export const deleteLatestDecoration = (id: string) => decoRpc('decorate_delete_latest', { request_id: id })
+export const resetDecorations = () => decoRpc('decorate_reset', {})
+
+// 정사각형 꾸미기 그림을 꾸미기 창 사진 칸 비율(예시 그림 420×261)로 가운데만 잘라 보여 준다
+export async function cropForPopup(url: string): Promise<string> {
+  const img = new Image()
+  img.crossOrigin = 'anonymous'
+  await new Promise((ok, fail) => { img.onload = ok; img.onerror = fail; img.src = url })
+  const w = img.naturalWidth, h = Math.round((w * 261) / 420)
+  const c = document.createElement('canvas')
+  c.width = w; c.height = h
+  c.getContext('2d')!.drawImage(img, 0, Math.round((img.naturalHeight - h) / 2), w, h, 0, 0, w, h)
+  return c.toDataURL('image/jpeg', 0.92)
 }
 
 // 꾸미기 "의견 전달하기": 꾸미기도 민원이다(channel 'decorate', 전후 이미지는 photo_paths)
 export async function sendDecoration(
   userId: string,
-  d: { content: string; buildingId: string | null; beforeUrl: string; afterUrl: string },
+  d: { requestId: string; content: string; buildingId: string | null; beforeUrl: string; afterUrl: string },
 ) {
   const [before, after] = await Promise.all([d.beforeUrl, d.afterUrl].map((u) => fetch(u).then((r) => r.blob())))
-  return submitComplaint(userId, { content: d.content, buildingId: d.buildingId, photos: [before, after], channel: 'decorate' })
+  const c = await submitComplaint(userId, { content: d.content, buildingId: d.buildingId, photos: [before, after], channel: 'decorate' })
+  await decoRpc('decorate_mark_sent', { request_id: d.requestId, sent_complaint_id: c.id })
+  return c
 }
