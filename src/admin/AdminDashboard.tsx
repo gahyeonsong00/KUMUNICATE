@@ -33,7 +33,7 @@ const CARD_MATCH: Record<Card, (r: Timed, now: number) => boolean> = {
   late: (r, now) => isLate(r, now),
   doneToday: (r) => r.status === 'resolved' && !!r.resolvedAt && isToday(r.resolvedAt),
 }
-const CARD_LABEL: Record<Card, string> = { working: '내가 처리 중', late: '지연', doneToday: '오늘 처리 완료' }
+const CARD_LABEL: Record<Card, string> = { working: '처리 중', late: '지연', doneToday: '처리 완료' }
 const CARD_SUB: Record<Card, string> = {
   working: '처리 완료 전인 내 민원',
   late: '접수 후 3일 넘게 미해결',
