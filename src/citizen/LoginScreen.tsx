@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { signInWithGoogle, signInWithPassword } from './api'
 import type { Toast } from './CitizenApp'
-import campusMap from '../../assets/campus_map.jpg'
+import campusMap from '../../assets/map_final.png'
 import mascotPair from '../../assets/mascot_pair.png'
 
 // 로그인 화면: 민원인(구글) / 직원(구글 또는 데모 계정 → /admin)
