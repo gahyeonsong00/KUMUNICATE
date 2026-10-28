@@ -49,6 +49,7 @@
 .citizen #topTitle{font-size:16px;font-weight:700;color:#7E2219}
 .citizen #mapArea{position:relative;flex:1;min-height:0;overflow:hidden}
 .citizen #mapScroll{position:absolute;inset:0;overflow:auto;scrollbar-width:none;-ms-overflow-style:none;user-select:none;-webkit-user-select:none}
+.citizen #mapScroll{touch-action:pan-x pan-y} /* 두 손가락 확대는 지도가 처리 (MainScreen) */
 .citizen #mapScroll::-webkit-scrollbar{display:none}
 /* 지도 판: 시트가 열리면 아래 여백(padding-bottom)이 시트 높이만큼 생김 */
 .citizen #mapBoard{position:relative;width:800px;height:1000px;box-sizing:content-box}

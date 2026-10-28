@@ -354,3 +354,32 @@ admin은 역할 지정·데이터 정정용 운영 계정이고, 실제 정정�
 - `target_college`는 **colleges 테이블의 code**(예: `software`)로 돌려준다. 한글 이름을 돌려주면 저장에 실패한다.
 - API 키는 `npx supabase secrets set CHATKHU_API_KEY=...`로 넣고 `Deno.env.get('CHATKHU_API_KEY')`로 읽는다. 코드에 쓰지 않는다.
 - 배포: `npx supabase functions deploy classify-complaint`
+
+---
+
+## 12. 꾸미기 (승원)
+
+설계·결정: `docs/decorate-mode-ai.md`, 프롬프트 테스트 기록: `docs/decorate-prompt-test-log.md`
+
+| 경로 | 하는 일 |
+|---|---|
+| `migrations/20261028000100_decorate.sql` | 꾸미기 기록 `decorate_requests`, 저장·최신부터 삭제·초기화·전달 표시 함수, 버킷 2개, `buildings.x·y`(완성 지도 픽셀) |
+| `functions/decorate/` | 핀 자리를 "내 지도"(원본 + 내 꾸미기)에서 1024×1024로 잘라 → Claude가 판단 → 나노바나나가 고쳐 그림 |
+| `decorate-map/final/` | 서버가 자를 원본 지도 조각 30개 (`assets/map_final.png`를 1024로 자른 것) |
+
+### 처음 설정 (서버 담당, 한 번만)
+```bash
+npx supabase db push
+# 지도 조각 30개를 비공개 버킷에 올리기
+for f in supabase/decorate-map/final/*.png; do npx supabase storage cp "$f" "ss:///decorate-maps/final/$(basename "$f")" --content-type image/png --experimental --linked; done
+# 꾸미기 전용 ChatKHU 키 (민원 분류·채팅의 CHATKHU_API_KEY와 크레딧을 나눔). 코드·git에 쓰지 말 것
+npx supabase secrets set DECORATE_CHATKHU_API_KEY=...
+npx supabase functions deploy decorate --use-api
+```
+선택 설정(기본값 있음): `CLAUDE_MODEL`(claude-haiku-5-5), `IMAGE_MODEL`(gemini-3.1-flash-image-preview), `IMAGE_USE_PRO`, `DAILY_LIMIT`(5), `MIN_CREDITS`(500)
+
+### 규칙 (서버가 지킴)
+- 하루 5회(이미지가 만들어진 요청만), `allowed_emails`의 데모 계정은 무제한. 키 계정 잔액이 500 아래면 데모 계정 외 생성 중단
+- 저장: `decorate_save` / 삭제: `decorate_delete_latest`(가장 최근 것만) / 초기화: `decorate_reset` / 의견 전달 후 `decorate_mark_sent`
+- 지우거나 초기화해도 기록은 남긴다(`hidden_at`). 학교에 전달한 민원(channel `decorate`)은 그대로
+- 화면 사용법은 `src/citizen/api.ts` 맨 아래 "꾸미기"
