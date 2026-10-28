@@ -1,15 +1,19 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { submitComplaint } from './api'
+import { DECO_MAP, deleteLatestDecoration, loadDecorations, submitComplaint } from './api'
 import type { Toast } from './CitizenApp'
 import { MAP_H, MAP_W, PLACES, nearestPlace, type Place } from './places'
 import { MAX_BYTE, countBytes, errorText } from './util'
 import ChatPopup from './ChatPopup'
 import Decorate, { type DecoItem } from './Decorate'
-import campusMap from '../../assets/campus_map.jpg'
+import mapImage from '../../assets/map_final.png'
 import mascotPair from '../../assets/mascot_pair.png'
 
-const MAP_START = { left: 200, top: 250 } // 지도 처음 스크롤 위치
+const MAP_START = { left: 150, top: 300 } // 지도 처음 스크롤 위치 (사색의 광장 쪽)
 const MAX_PHOTOS = 3
+const MAX_ZOOM = 3 // 지도 그림이 원본 6028px라 3배까지 선명
+
+// 저장한 꾸미기를 지도에 겹칠 때: 가운데 80%는 그대로, 바깥 10%씩은 아래 지도와 부드럽게 섞음
+const DECO_MASK = 'linear-gradient(to right,transparent,#000 10%,#000 90%,transparent),linear-gradient(to bottom,transparent,#000 10%,#000 90%,transparent)'
 
 type Pin = { x: number; y: number; place: Place }
 type Props = { userId: string; hidden: boolean; toast: Toast; onOpenActivity: () => void; onLogout: () => void }
@@ -33,8 +37,12 @@ export default function MainScreen({ userId, hidden, toast, onOpenActivity, onLo
   const [saving, setSaving] = useState(false)
   const [showDone, setShowDone] = useState(false)
   const [showChat, setShowChat] = useState(false)
-  // 꾸미기 기록은 아직 서버에 저장하지 않는다(의견 전달하기를 누른 것만 민원으로 접수)
+  // 꾸미기 기록 = 서버에 저장된 내 꾸미기 (최신이 맨 앞). 꾸미기 모드에서 지도 위에 겹쳐 보여 준다 = 내 지도
   const [history, setHistory] = useState<DecoItem[]>([])
+  // 확대·축소 배율. 지도 판 크기 = MAP_W × zoom
+  const [zoom, setZoom] = useState(1)
+  const zoomRef = useRef(1)
+  const zoomAnchor = useRef<{ fx: number; fy: number; ox: number; oy: number } | null>(null)
   const [decoPanel, setDecoPanel] = useState<'none' | 'deco' | 'history' | 'reset'>('none')
 
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -47,6 +55,14 @@ export default function MainScreen({ userId, hidden, toast, onOpenActivity, onLo
   const deco = mode === 'decorate'
   const sheetOpen = !deco && !!pin
   const bytes = countBytes(text)
+  const mapW = MAP_W * zoom
+  const mapH = MAP_H * zoom
+
+  const reloadDecorations = async () => {
+    try { setHistory(await loadDecorations()) } catch (e) { toast(errorText(e, '내 꾸미기를 불러오지 못했어요')) }
+  }
+  // 꾸미기 모드를 켜면 내 지도(원본 + 저장한 꾸미기)를 불러온다
+  useEffect(() => { if (deco) reloadDecorations() }, [deco]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const resetMapScroll = () => {
     const s = scrollRef.current
@@ -63,8 +79,56 @@ export default function MainScreen({ userId, hidden, toast, onOpenActivity, onLo
   useEffect(() => {
     if (!sheetOpen || !pin) return
     const visibleH = (areaRef.current?.clientHeight ?? 0) - (sheetRef.current?.offsetHeight ?? 0)
-    scrollRef.current?.scrollTo({ top: Math.max(0, pin.y * MAP_H - visibleH / 2), behavior: 'smooth' })
-  }, [sheetOpen, pin])
+    scrollRef.current?.scrollTo({ top: Math.max(0, pin.y * mapH - visibleH / 2), behavior: 'smooth' })
+  }, [sheetOpen, pin]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 확대·축소: 마우스 휠(PC), 두 손가락 벌리기·오므리기(폰). 손가락·마우스 밑의 자리가 그대로 남게 스크롤을 맞춘다
+  // 가장 작게 해도 지도가 화면을 꽉 채운다
+  useEffect(() => {
+    const s = scrollRef.current, area = areaRef.current
+    if (!s || !area) return
+    const zoomAt = (z: number, cx: number, cy: number) => {
+      const min = Math.max(area.clientWidth / MAP_W, area.clientHeight / MAP_H)
+      z = Math.min(MAX_ZOOM, Math.max(min, z))
+      if (Math.abs(z - zoomRef.current) < 0.001) return
+      const r = s.getBoundingClientRect()
+      const ox = cx - r.left, oy = cy - r.top
+      zoomAnchor.current = {
+        fx: (s.scrollLeft + ox) / (MAP_W * zoomRef.current), fy: (s.scrollTop + oy) / (MAP_H * zoomRef.current), ox, oy,
+      }
+      zoomRef.current = z
+      setZoom(z)
+    }
+    const wheel = (e: WheelEvent) => { e.preventDefault(); zoomAt(zoomRef.current * Math.exp(-e.deltaY * 0.0015), e.clientX, e.clientY) }
+    let pinch: { gap: number; zoom: number } | null = null
+    const gap = (t: TouchList) => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY)
+    const tStart = (e: TouchEvent) => { if (e.touches.length === 2) pinch = { gap: gap(e.touches), zoom: zoomRef.current } }
+    const tMove = (e: TouchEvent) => {
+      if (!pinch || e.touches.length !== 2) return
+      e.preventDefault()
+      const t = e.touches
+      zoomAt(pinch.zoom * gap(t) / pinch.gap, (t[0].clientX + t[1].clientX) / 2, (t[0].clientY + t[1].clientY) / 2)
+    }
+    const tEnd = (e: TouchEvent) => { if (e.touches.length < 2) pinch = null }
+    s.addEventListener('wheel', wheel, { passive: false })
+    s.addEventListener('touchstart', tStart, { passive: true })
+    s.addEventListener('touchmove', tMove, { passive: false })
+    s.addEventListener('touchend', tEnd)
+    return () => {
+      s.removeEventListener('wheel', wheel)
+      s.removeEventListener('touchstart', tStart)
+      s.removeEventListener('touchmove', tMove)
+      s.removeEventListener('touchend', tEnd)
+    }
+  }, [])
+  // 배율이 바뀐 뒤(다시 그린 뒤) 기준점이 제자리에 오도록 스크롤
+  useLayoutEffect(() => {
+    const a = zoomAnchor.current, s = scrollRef.current
+    if (!a || !s) return
+    s.scrollLeft = a.fx * mapW - a.ox
+    s.scrollTop = a.fy * mapH - a.oy
+    zoomAnchor.current = null
+  }, [zoom]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // 마우스로 끌어서 스크롤 (PC용). 폰의 손가락 스크롤은 브라우저 기본 동작 그대로
   useEffect(() => {
@@ -121,8 +185,8 @@ export default function MainScreen({ userId, hidden, toast, onOpenActivity, onLo
     if (suppressClick.current || !boardRef.current) return
     const r = boardRef.current.getBoundingClientRect()
     // 누른 곳을 지도 판 기준 0~1 비율로 (아래 여백은 지도가 아니므로 지도 크기로 나눔)
-    const x = Math.min(1, Math.max(0, (e.clientX - r.left) / MAP_W))
-    const y = Math.min(1, Math.max(0, (e.clientY - r.top) / MAP_H))
+    const x = Math.min(1, Math.max(0, (e.clientX - r.left) / mapW))
+    const y = Math.min(1, Math.max(0, (e.clientY - r.top) / mapH))
     setPin({ x, y, place: nearestPlace(x, y) })
   }
 
@@ -175,13 +239,26 @@ export default function MainScreen({ userId, hidden, toast, onOpenActivity, onLo
       {/* 지도 영역: 나중에 진짜 지도로 바꿀 수 있게 하나로 감쌈 */}
       <div id="mapArea" ref={areaRef}>
         <div id="mapScroll" ref={scrollRef}>
-          <div id="mapBoard" ref={boardRef} onClick={onBoardClick}>
-            <img className="crisp" src={campusMap} alt="캠퍼스 지도" draggable={false} />
-            {PLACES.map((p) => (
-              <div key={p.name} className="tag" style={{ left: p.x * MAP_W, top: p.y * MAP_H }}>{p.name}</div>
+          <div id="mapBoard" ref={boardRef} onClick={onBoardClick} style={{ width: mapW, height: mapH }}>
+            <img className="crisp" src={mapImage} alt="캠퍼스 지도" draggable={false} style={{ width: mapW, height: mapH }} />
+            {/* 꾸미기 모드: 내 지도 = 저장한 꾸미기를 오래된 것부터 겹침 (최신이 위) */}
+            {deco && history.slice().reverse().map((h) => {
+              const k = mapW / DECO_MAP.w
+              return (
+                <img key={h.id} className="decoLayer" src={h.afterUrl} alt="" draggable={false}
+                  style={{
+                    position: 'absolute', pointerEvents: 'none', left: h.bounds.x * k, top: h.bounds.y * k,
+                    width: h.bounds.size * k, height: h.bounds.size * k,
+                    WebkitMaskImage: DECO_MASK, WebkitMaskComposite: 'source-in', maskImage: DECO_MASK, maskComposite: 'intersect',
+                  }} />
+              )
+            })}
+            {/* 이름표는 민원 모드에서만 (꾸미기 모드에서는 지도만 보이게) */}
+            {!deco && PLACES.map((p) => (
+              <div key={p.name} className="tag" style={{ left: p.x * mapW, top: p.y * mapH }}>{p.name}</div>
             ))}
             {pin && (
-              <div id="pin" className={deco ? 'deco' : undefined} style={{ left: pin.x * MAP_W, top: pin.y * MAP_H }}
+              <div id="pin" className={deco ? 'deco' : undefined} style={{ left: pin.x * mapW, top: pin.y * mapH }}
                 onClick={(e) => {
                   // 꾸미기 모드에서 핀을 누르면 프롬프트 창 (지도 click으로 번지지 않게 막음)
                   e.stopPropagation()
@@ -197,13 +274,23 @@ export default function MainScreen({ userId, hidden, toast, onOpenActivity, onLo
             <button id="modeSwitch" className={deco ? 'on' : undefined} type="button" aria-label="꾸미기 모드 전환"
               onClick={() => changeMode(deco ? 'complaint' : 'decorate')}><i /></button>
           </div>
-          {/* TODO(승원): 진짜 지도로 바꾸면 나침반 동작도 바꾼다 */}
-          <button className="btn3 sq" type="button" onClick={() => { resetMapScroll(); toast('지도를 처음 위치로 되돌렸어요') }}>N</button>
+          <button className="btn3 sq" type="button" onClick={() => {
+            zoomRef.current = 1
+            setZoom(1)
+            requestAnimationFrame(resetMapScroll)
+            toast('지도를 처음 위치로 되돌렸어요')
+          }}>N</button>
           {deco && (
-            <button className="btn3 sq" type="button" aria-label="되돌리기" onClick={() => {
+            <button className="btn3 sq" type="button" aria-label="되돌리기" onClick={async () => {
               if (history.length === 0) { toast('되돌릴 꾸미기가 없어요'); return }
-              toast(`'${history[0].title}' 되돌림`)
-              setHistory((h) => h.slice(1))
+              const last = history[0] // 가장 최근 꾸미기 하나만 원본으로
+              try {
+                await deleteLatestDecoration(last.id)
+                await reloadDecorations()
+                toast(`'${last.title}' 되돌림`)
+              } catch (e) {
+                toast(errorText(e, '되돌리지 못했어요. 다시 시도해 주세요'))
+              }
             }}>↶</button>
           )}
         </div>
@@ -277,8 +364,9 @@ export default function MainScreen({ userId, hidden, toast, onOpenActivity, onLo
         panel={decoPanel}
         setPanel={setDecoPanel}
         place={pin?.place ?? null}
+        pin={pin ? { x: pin.x, y: pin.y } : null}
         history={history}
-        setHistory={setHistory}
+        reload={reloadDecorations}
         onSaved={() => setPin(null)}
       />
     </div>

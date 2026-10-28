@@ -8,14 +8,15 @@ import './citizen.css'
 
 export type Toast = (msg: string) => void
 
-// 안내 문구: 1.8초 떴다 사라짐
+// 안내 문구: 1.8초(긴 문장은 더 길게) 떴다 사라짐
 function useToast() {
   const [msg, setMsg] = useState<string | null>(null)
   const timer = useRef<number | undefined>(undefined)
   const show = useCallback<Toast>((m) => {
     setMsg(m)
     clearTimeout(timer.current)
-    timer.current = window.setTimeout(() => setMsg(null), 1800)
+    // 쿠밍이 답처럼 긴 문장은 읽을 시간만큼 더 보여 줌
+    timer.current = window.setTimeout(() => setMsg(null), Math.max(1800, m.length * 90))
   }, [])
   return [msg, show] as const
 }
