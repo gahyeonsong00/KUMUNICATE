@@ -5,7 +5,6 @@
 **2026 KHU AI Challenge · AI 문제해결 솔루션 부문 · 팀 KHUminicate**
 
 - 시연 영상: https://youtu.be/dxv8yzxhY9I
-- 서비스 주소: 〔배포 URL〕
 - 심사·시연용 계정: 제출 서류(프로젝트 소개서)에 따로 적었습니다. 비밀번호는 저장소에 올리지 않습니다.
 
 ![경희대 키우기](assets/map_final.png)
@@ -134,7 +133,7 @@ cd supabase/tests && npm install && npm test
 | 자료 | 출처 | 이용 조건 |
 |---|---|---|
 | 부서·학과 정보 | 경희대학교 홈페이지, 국제캠퍼스 전화번호부 | 공개 정보를 팀이 정리 |
-| 마스코트 쿠옹이·쿠밍이, 학교 로고 | 경희대학교 | 〔사용 허락 확인 후 기재〕 |
+| 마스코트 쿠옹이·쿠밍이, 학교 로고 | 경희대학교 | 대회 출품 목적으로만 사용 |
 | Galmuri11 글꼴 | quiple(이민서) | SIL Open Font License 1.1 (`assets/fonts/OFL-Galmuri.md`) |
 | 캠퍼스 지도 이미지 | 팀 제작 (ChatKHU Nano Banana Pro로 생성) | 학교 건물 사진을 위치·외관 참고용으로만 사용 |
 | React, Vite, Supabase JS 등 | 각 오픈소스 프로젝트 | 각 라이선스 (MIT, Apache 2.0 등) |
