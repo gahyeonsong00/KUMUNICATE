@@ -50,9 +50,10 @@ export function onAuthChange(cb: (session: Session | null) => void) {
 
 // 학교 구글 계정. redirectPath: 로그인 뒤 돌아올 경로(민원인 '/', 직원 '/admin')
 export async function signInWithGoogle(redirectPath: string) {
+  // select_account: 브라우저에 로그인된 Google 계정으로 바로 넘어가지 않고 매번 계정을 고르게 한다 (시연 때 계정 바꾸기)
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: `${window.location.origin}${redirectPath}`, queryParams: { hd: 'khu.ac.kr' } },
+    options: { redirectTo: `${window.location.origin}${redirectPath}`, queryParams: { hd: 'khu.ac.kr', prompt: 'select_account' } },
   })
   if (error) throw error
 }
