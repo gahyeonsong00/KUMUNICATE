@@ -168,7 +168,11 @@ function Detail({ c, userId, toast, onChanged }: { c: Complaint; userId: string;
 
       {c.status === 'received' && (
         <>
-          <div>담당 부서에 전달되었어요. 담당자가 맡으면 '해결 중'으로 옮겨져요.</div>
+          {/* 어느 부서로 갔는지 민원인이 바로 알 수 있게 (분류 중이거나 미분류면 부서 이름 없이) */}
+          <div>
+            {c.department && c.department !== 'UNASSIGNED' ? `${dept}에 전달되었어요.` : '담당 부서를 찾고 있어요.'}
+            {' '}담당자가 맡으면 '해결 중'으로 옮겨져요.
+          </div>
           {/* 담당자가 받기 전(read_at 없음)에만 고칠 수 있다 */}
           {!c.read_at && <EditForm c={c} toast={toast} onChanged={onChanged} />}
         </>

@@ -19,6 +19,7 @@ export type Complaint = {
   status: Status
   channel: Channel
   building_id: string | null
+  department: string | null
   photo_paths: string[]
   read_at: string | null
   resolved_at: string | null
@@ -33,7 +34,7 @@ export type ChatTurn = { role: 'user' | 'assistant'; content: string }
 
 const BUCKET = 'complaint-files'
 const COMPLAINT_FIELDS =
-  'id, no, content, status, channel, building_id, photo_paths, read_at, resolved_at, reopened_at, created_at, building:buildings(name), dept:departments(name)'
+  'id, no, content, status, channel, building_id, department, photo_paths, read_at, resolved_at, reopened_at, created_at, building:buildings(name), dept:departments(name)'
 
 // ---------------------------------------------------------------------
 // 로그인
